@@ -1,0 +1,8 @@
+build
+debug
+dist
+*.log*
+.generated*
+nbactions.xml
+nb-configuration.xml
+nbproject/private/
