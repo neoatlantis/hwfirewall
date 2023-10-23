@@ -21,6 +21,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define revert_endian(buf) \
+    ((buf & 0x000000FF) << 24) |  \
+    ((buf & 0x0000FF00) << 8)  |  \
+    ((buf & 0x00FF0000) >> 8)  |  \
+    ((buf & 0xFF000000) >> 24)
+
 #define SPIxCON_MODE_8      (0b00 << 10)
 #define SPIxCON_MODE_16     (0b01 << 10)
 #define SPIxCON_MODE_32     (0b11 << 10)
@@ -43,8 +49,8 @@
 
 
 void spi2_enable();
-uint32_t spi2_send_and_receive_new(uint32_t, bool);
-uint32_t spi2_receive_and_send_new(uint32_t c, bool invert_recv_endian);
+uint32_t spi2_send_and_receive_new(uint32_t, bool, bool);
+uint32_t spi2_receive_and_send_new(uint32_t c, bool);
 
 void spi2_set_mode_8();
 void spi2_set_mode_16();

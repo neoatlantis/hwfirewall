@@ -42,16 +42,15 @@ void spi2_set_mode_32(){
 }
 
 
-uint32_t spi2_send_and_receive_new(uint32_t c, bool invert_recv_endian){
+uint32_t spi2_send_and_receive_new(uint32_t c, bool invert_recv_endian, bool invert_tx_endian){
     //while(!SPI2STATbits.SPITBE);
+    if(invert_tx_endian) c = revert_endian(c);
+    
     SPI2BUF = c;
     while(!SPI2STATbits.SPIRBF);
     if(invert_recv_endian){
         uint32_t buf = SPI2BUF;
-        buf = ((buf & 0x000000FF) << 24) |
-              ((buf & 0x0000FF00) << 8) |
-              ((buf & 0x00FF0000) >> 8) |
-              ((buf & 0xFF000000) >> 24);
+        buf = revert_endian(buf);
         return buf;
     }
     return SPI2BUF;
