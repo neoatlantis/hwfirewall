@@ -9,6 +9,7 @@
       <itemPath>system_config.h</itemPath>
       <itemPath>spi.h</itemPath>
       <itemPath>lan9250.h</itemPath>
+      <itemPath>lan9250_register_struct.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -28,6 +29,9 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="default" type="2">
@@ -365,6 +369,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="1d000000-1d07ffff"/>
         <property key="poweroptions.powerenable" value="true"/>
+        <property key="programmerToGoFilePath"
+                  value="C:/PROJECTS/0005-hwfirewall/hwfirewall.X/debug/default/hwfirewall_ptg"/>
         <property key="programmerToGoImageName" value="hwfirewall_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>

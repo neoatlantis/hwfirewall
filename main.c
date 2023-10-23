@@ -20,7 +20,7 @@ void main(void) {
     
     spi2_enable();
     uart2_enable();
-    printf("----\n\r");
+    printf("\n\r----\n\r");
     printf("NeoAtlantis Hardware Firewall\n\r");
     
     printf("Initialize LAN9250 at slot 1...");

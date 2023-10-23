@@ -35,7 +35,7 @@ void lan9250_deselect_2(void);
 
 
 
-#include "lan9250_register_struct.h"
+
 
 
 
