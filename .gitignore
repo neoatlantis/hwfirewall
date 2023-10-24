@@ -1,7 +1,7 @@
 build
 debug
 dist
-*.log*
+*log*
 .generated*
 nbactions.xml
 nb-configuration.xml

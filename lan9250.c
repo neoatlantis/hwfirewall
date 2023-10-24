@@ -51,12 +51,12 @@ uint32_t lan9250_read_dword(LAN9250Resource nic, uint16_t addr){
 bool lan9250_write_dword(LAN9250Resource nic, uint16_t addr, uint32_t value){
     uint32_t ret;
     nic.deselect();
-    uint32_t firstDWord = 0x00020000 | addr;
+    uint32_t firstDWord = 0xFF020000 | addr;
     spi2_set_mode_32();
     nic.select();
     // send first byte
     spi2_send_and_receive_new(firstDWord, false, false);
-    ret = spi2_send_and_receive_new(value, true, false);
+    ret = spi2_send_and_receive_new(value, false, true);
     nic.deselect();
     return true;
 }
@@ -88,7 +88,7 @@ bool lan9250_write_n_bytes(LAN9250Resource nic, uint32_t* buffer, size_t bufferS
     nic.deselect();
     if(n > bufferSize) return false;
 
-    uint32_t firstDWord = 0x00020000 | addr;
+    uint32_t firstDWord = 0xFF020000 | addr;
     spi2_set_mode_32();
     nic.select();
 
@@ -121,6 +121,18 @@ bool lan9250_write_hw_cfg(LAN9250Resource nic){
     return lan9250_write_dword(nic, 0x74, REG_HW_CFG.value);
 }
 
+bool lan9250_read_mac_csr(LAN9250Resource nic, uint8_t addr, uint32_t *result){
+    REG_MAC_CSR_CMD.CSRADDR = addr;
+    REG_MAC_CSR_CMD.RW = 1; // 1-read, 0-write
+    REG_MAC_CSR_CMD.HMAC_CSR_BUSY = 1;
+    lan9250_write_dword(nic, 0xA4, REG_MAC_CSR_CMD.value);
+    do{
+        REG_MAC_CSR_CMD.value = lan9250_read_dword(nic, 0xA4);
+    } while(REG_MAC_CSR_CMD.HMAC_CSR_BUSY);
+    *result = lan9250_read_dword(nic, 0xA8);
+    return true;
+}
+
 void lan9250_init(char slot){
     LAN9250Resource nic = lan9250_resources[slot-1];
     printf("Activated LAN9250, waiting for ready...\n\r");
@@ -135,4 +147,16 @@ void lan9250_init(char slot){
         lan9250_read_hw_cfg(nic);
     } while(!REG_HW_CFG.READY);
     printf("Device reports in ready state. TX buffer size: %d kBytes.\n\r", REG_HW_CFG.TX_FIF_SZ);
+    
+    lan9250_read_mac_csr(nic, 0x02, &REG_HMAC_ADDR_H.value);
+    lan9250_read_mac_csr(nic, 0x03, &REG_HMAC_ADDR_L.value);
+    printf(
+        "Device MAC addr is %x:%x:%x:%x:%x:%x\n\r",
+        REG_HMAC_ADDR_H.ADDR5,
+        REG_HMAC_ADDR_H.ADDR4,
+        REG_HMAC_ADDR_L.ADDR3,
+        REG_HMAC_ADDR_L.ADDR2,
+        REG_HMAC_ADDR_L.ADDR1,
+        REG_HMAC_ADDR_L.ADDR0
+    );
 }

@@ -93,4 +93,29 @@ union {
     };
 } REG_MAC_CSR_CMD;
 
+
+
+// 11.15.2 HOST MAC ADDRESS HIGH REGISTER (HMAC_ADDRH)
+
+union {
+    uint32_t value;
+    struct {
+        unsigned ADDR4:8;
+        unsigned ADDR5:8;
+        unsigned :16;
+    };
+} REG_HMAC_ADDR_H;
+
+// 11.15.3 HOST MAC ADDRESS LOW REGISTER (HMAC_ADDRL)
+
+union {
+    uint32_t value;
+    struct {
+        unsigned ADDR0:8;
+        unsigned ADDR1:8;
+        unsigned ADDR2:8;
+        unsigned ADDR3:8;
+    };
+} REG_HMAC_ADDR_L;
+
 #endif
