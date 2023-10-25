@@ -22,7 +22,7 @@
 #pragma config FPBDIV = DIV_2           // Peripheral Clock Divisor (Pb_Clk is Sys_Clk/2)
 #pragma config FCKSM = CSDCMD           // Clock Switching and Monitor Selection (Clock Switch Disable, FSCM Disabled)
 #pragma config WDTPS = PS1048576        // Watchdog Timer Postscaler (1:1048576)
-#pragma config FWDTEN = ON              // Watchdog Timer Enable (WDT Enabled)
+#pragma config FWDTEN = OFF              // Watchdog Timer Enable (WDT Enabled)
 
 // DEVCFG0
 #pragma config DEBUG = OFF              // Background Debugger Enable (Debugger is disabled)

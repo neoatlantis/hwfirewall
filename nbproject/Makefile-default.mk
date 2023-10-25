@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=main.c uart.c spi.c lan9250.c
+SOURCEFILES_QUOTED_IF_SPACED=main.c uart.c spi.c lan9250.c lan9250_io.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/main.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/spi.o ${OBJECTDIR}/lan9250.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/main.o.d ${OBJECTDIR}/uart.o.d ${OBJECTDIR}/spi.o.d ${OBJECTDIR}/lan9250.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/main.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/spi.o ${OBJECTDIR}/lan9250.o ${OBJECTDIR}/lan9250_io.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/main.o.d ${OBJECTDIR}/uart.o.d ${OBJECTDIR}/spi.o.d ${OBJECTDIR}/lan9250.o.d ${OBJECTDIR}/lan9250_io.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/main.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/spi.o ${OBJECTDIR}/lan9250.o
+OBJECTFILES=${OBJECTDIR}/main.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/spi.o ${OBJECTDIR}/lan9250.o ${OBJECTDIR}/lan9250_io.o
 
 # Source Files
-SOURCEFILES=main.c uart.c spi.c lan9250.c
+SOURCEFILES=main.c uart.c spi.c lan9250.c lan9250_io.c
 
 
 
@@ -125,6 +125,12 @@ ${OBJECTDIR}/lan9250.o: lan9250.c  .generated_files/flags/default/ab280b125fdaf5
 	@${RM} ${OBJECTDIR}/lan9250.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -MP -MMD -MF "${OBJECTDIR}/lan9250.o.d" -o ${OBJECTDIR}/lan9250.o lan9250.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
+${OBJECTDIR}/lan9250_io.o: lan9250_io.c  .generated_files/flags/default/5f0aa6de7dd3694b27171623ca63c1ab311e1624 .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/lan9250_io.o.d 
+	@${RM} ${OBJECTDIR}/lan9250_io.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -MP -MMD -MF "${OBJECTDIR}/lan9250_io.o.d" -o ${OBJECTDIR}/lan9250_io.o lan9250_io.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
 else
 ${OBJECTDIR}/main.o: main.c  .generated_files/flags/default/f60d9d87c4ce2de05aa52c6f5af1a5d771cafbfe .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}" 
@@ -149,6 +155,12 @@ ${OBJECTDIR}/lan9250.o: lan9250.c  .generated_files/flags/default/f9a0102f46286b
 	@${RM} ${OBJECTDIR}/lan9250.o.d 
 	@${RM} ${OBJECTDIR}/lan9250.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -MP -MMD -MF "${OBJECTDIR}/lan9250.o.d" -o ${OBJECTDIR}/lan9250.o lan9250.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/lan9250_io.o: lan9250_io.c  .generated_files/flags/default/ddc07aaedad992e21b542df58823c9c814a6020f .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/lan9250_io.o.d 
+	@${RM} ${OBJECTDIR}/lan9250_io.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -MP -MMD -MF "${OBJECTDIR}/lan9250_io.o.d" -o ${OBJECTDIR}/lan9250_io.o lan9250_io.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
 endif
 

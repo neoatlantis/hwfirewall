@@ -4,12 +4,15 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <logicalFolder name="f1" displayName="lan9250" projectFiles="true">
+        <itemPath>lan9250.h</itemPath>
+        <itemPath>lan9250_register_struct.h</itemPath>
+        <itemPath>lan9250_io.h</itemPath>
+      </logicalFolder>
       <itemPath>uart.h</itemPath>
       <itemPath>config_bits.h</itemPath>
       <itemPath>system_config.h</itemPath>
       <itemPath>spi.h</itemPath>
-      <itemPath>lan9250.h</itemPath>
-      <itemPath>lan9250_register_struct.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -18,10 +21,13 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="f1" displayName="lan9250" projectFiles="true">
+        <itemPath>lan9250.c</itemPath>
+        <itemPath>lan9250_io.c</itemPath>
+      </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>uart.c</itemPath>
       <itemPath>spi.c</itemPath>
-      <itemPath>lan9250.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -275,6 +281,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="1d000000-1d07ffff"/>
         <property key="poweroptions.powerenable" value="true"/>
+        <property key="programmerToGoFilePath"
+                  value="C:/PROJECTS/0005-hwfirewall/hwfirewall.X/debug/default/hwfirewall_ptg"/>
         <property key="programmerToGoImageName" value="hwfirewall_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>

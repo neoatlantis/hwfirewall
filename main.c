@@ -17,6 +17,15 @@
 
 
 void main(void) {
+    LAN9250Config nic1_config = {
+        .MAC_ADDR_H = 0x0000AAAA,
+        .MAC_ADDR_L = 0xDEADBEEF
+    };
+    LAN9250Config nic2_config = {
+        .MAC_ADDR_H = 0xCAFEBABE,
+        .MAC_ADDR_L = 0xDEADBEEF
+    };
+    
     
     spi2_enable();
     uart2_enable();
@@ -25,7 +34,8 @@ void main(void) {
     
     printf("Initialize LAN9250 at slot 1...");
     
-    lan9250_init(1);
+    lan9250_init(1, nic1_config);
+    lan9250_init(2, nic2_config);
     
     
     while(1){

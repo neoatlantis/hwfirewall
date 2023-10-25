@@ -36,11 +36,14 @@ void lan9250_deselect_2(void);
 
 
 
+typedef struct {
+    uint32_t MAC_ADDR_H;
+    uint32_t MAC_ADDR_L;
+} LAN9250Config;
 
 
 
-
-void lan9250_init(char);
+void lan9250_init(char, LAN9250Config);
 
 
 #endif

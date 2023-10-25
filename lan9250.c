@@ -1,8 +1,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include "spi.h"
+
 #include "lan9250.h"
+#include "lan9250_io.h"
 #include "lan9250_register_struct.h"
 
 void lan9250_select_1(void){
@@ -33,71 +34,6 @@ LAN9250Resource lan9250_resources[2] = {
     }
 };
 
-uint32_t lan9250_read_dword(LAN9250Resource nic, uint16_t addr){
-    uint32_t ret;
-    nic.deselect();
-    // Use fast read, send 0x0b, addrH, addrL, and dummyByte.
-    uint32_t firstDWord = (0x0b << 24) | (addr << 8);
-    // As we begin with 4 bytes, we transfer in 32-bit mode
-    spi2_set_mode_32();
-    nic.select();
-    // send first byte
-    spi2_send_and_receive_new(firstDWord, false, false);
-    ret = spi2_send_and_receive_new(0xAA, true, false);
-    nic.deselect();
-    return ret;
-}
-
-bool lan9250_write_dword(LAN9250Resource nic, uint16_t addr, uint32_t value){
-    uint32_t ret;
-    nic.deselect();
-    uint32_t firstDWord = 0xFF020000 | addr;
-    spi2_set_mode_32();
-    nic.select();
-    // send first byte
-    spi2_send_and_receive_new(firstDWord, false, false);
-    ret = spi2_send_and_receive_new(value, false, true);
-    nic.deselect();
-    return true;
-}
-
-bool lan9250_read_n_bytes(LAN9250Resource nic, uint32_t* buffer, size_t bufferSize, uint16_t addr, size_t n){
-    nic.deselect();
-    
-    if(n > bufferSize) return false;
-    
-    // Use fast read, send 0x0b, addrH, addrL, and dummyByte.
-    uint32_t firstDWord = (0x0b << 24) | (addr << 8);
-    // As we begin with 4 bytes, we transfer in 32-bit mode
-    spi2_set_mode_32();
-    
-    
-    nic.select();
-    
-    // send first byte
-    spi2_send_and_receive_new(firstDWord, false, false);
-    // retrieve rest bytes
-    for(size_t i=0; i<n; i++){
-        buffer[i] = spi2_send_and_receive_new(0xAA, true, false);
-    }
-    nic.deselect();
-    return true;
-}
-
-bool lan9250_write_n_bytes(LAN9250Resource nic, uint32_t* buffer, size_t bufferSize, uint16_t addr, size_t n){
-    nic.deselect();
-    if(n > bufferSize) return false;
-
-    uint32_t firstDWord = 0xFF020000 | addr;
-    spi2_set_mode_32();
-    nic.select();
-
-    spi2_send_and_receive_new(firstDWord, false, false);
-    for(size_t i=0; i<n; i++){
-        spi2_send_and_receive_new(buffer[i], false, true);
-    }
-    return true;
-}
 
 
 bool lan9250_test_byte(LAN9250Resource nic){
@@ -133,7 +69,19 @@ bool lan9250_read_mac_csr(LAN9250Resource nic, uint8_t addr, uint32_t *result){
     return true;
 }
 
-void lan9250_init(char slot){
+bool lan9250_write_mac_csr(LAN9250Resource nic, uint8_t addr, uint32_t *value){
+    lan9250_write_dword(nic, 0xA8, *value); // write to HMAC_CSR_DATA
+    REG_MAC_CSR_CMD.CSRADDR = addr;
+    REG_MAC_CSR_CMD.RW = 0; // 1-read, 0-write
+    REG_MAC_CSR_CMD.HMAC_CSR_BUSY = 1;
+    lan9250_write_dword(nic, 0xA4, REG_MAC_CSR_CMD.value);
+    do{
+        REG_MAC_CSR_CMD.value = lan9250_read_dword(nic, 0xA4);
+    } while(REG_MAC_CSR_CMD.HMAC_CSR_BUSY);
+    return true;
+}
+
+void lan9250_init(char slot, LAN9250Config config){
     LAN9250Resource nic = lan9250_resources[slot-1];
     printf("Activated LAN9250, waiting for ready...\n\r");
     
@@ -147,6 +95,11 @@ void lan9250_init(char slot){
         lan9250_read_hw_cfg(nic);
     } while(!REG_HW_CFG.READY);
     printf("Device reports in ready state. TX buffer size: %d kBytes.\n\r", REG_HW_CFG.TX_FIF_SZ);
+    
+    // set mac address
+    
+    lan9250_write_mac_csr(nic, 0x02, &config.MAC_ADDR_H);
+    lan9250_write_mac_csr(nic, 0x03, &config.MAC_ADDR_L);
     
     lan9250_read_mac_csr(nic, 0x02, &REG_HMAC_ADDR_H.value);
     lan9250_read_mac_csr(nic, 0x03, &REG_HMAC_ADDR_L.value);
