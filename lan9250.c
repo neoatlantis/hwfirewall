@@ -8,17 +8,20 @@
 #include "lan9250_register_struct.h"
 
 
-
 LAN9250Resource lan9250_resources[2] = {
     {
         .buffer = {0},
         .select = lan9250_select_1,
-        .deselect = lan9250_deselect_1
+        .deselect = lan9250_deselect_1,
+        .enable_interrupt = lan9250_enable_interrupt_1,
+        .disable_interrupt = lan9250_disable_interrupt_1
     },
     {
         .buffer = {0},
         .select = lan9250_select_2,
-        .deselect = lan9250_deselect_2
+        .deselect = lan9250_deselect_2,
+        .enable_interrupt = lan9250_enable_interrupt_2,
+        .disable_interrupt = lan9250_disable_interrupt_2
     }
 };
 
@@ -71,6 +74,8 @@ bool lan9250_write_mac_csr(LAN9250Resource nic, uint8_t addr, uint32_t *value){
 
 void lan9250_init(char slot, LAN9250Config config){
     LAN9250Resource nic = lan9250_resources[slot-1];
+    nic.disable_interrupt();
+    
     printf("Activated LAN9250, waiting for ready...\n\r");
     
     while(!lan9250_test_byte(nic));
@@ -100,4 +105,6 @@ void lan9250_init(char slot, LAN9250Config config){
         REG_HMAC_ADDR_L.ADDR1,
         REG_HMAC_ADDR_L.ADDR0
     );
+    
+    nic.enable_interrupt();
 }
