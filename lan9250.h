@@ -26,12 +26,11 @@ typedef struct {
     uint8_t buffer[1536];
     void (*select)(void);
     void (*deselect)(void);
+    void (*enable_interrupt)(void);
+    void (*disable_interrupt)(void);
 } LAN9250Resource;
 
-void lan9250_select_1(void);
-void lan9250_select_2(void);
-void lan9250_deselect_1(void);
-void lan9250_deselect_2(void);
+
 
 
 

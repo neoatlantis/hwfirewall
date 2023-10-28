@@ -3,23 +3,11 @@
 #include <stdio.h>
 
 #include "lan9250.h"
+#include "lan9250_hw_def.h"
 #include "lan9250_io.h"
 #include "lan9250_register_struct.h"
 
-void lan9250_select_1(void){
-    SPI_SLOT2_CS_BIT=1;
-    SPI_SLOT1_CS_BIT=0;
-}
-void lan9250_deselect_1(void){
-    SPI_SLOT1_CS_BIT = 1;
-}
-void lan9250_select_2(void){
-    SPI_SLOT1_CS_BIT=1;
-    SPI_SLOT2_CS_BIT=0;
-}
-void lan9250_deselect_2(void){
-    SPI_SLOT2_CS_BIT = 1;
-}
+
 
 LAN9250Resource lan9250_resources[2] = {
     {
