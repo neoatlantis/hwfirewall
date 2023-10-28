@@ -3,9 +3,29 @@
 
 #include "stdint.h"
 
+// 8.3.1 INTERRUPT CONFIGURATION REGISTER (IRQ_CFG)
+
+typedef union {
+    uint32_t value;
+    struct {
+        unsigned IRQ_TYPE:1;
+        unsigned IRQ_CLK_SELECT:1;
+        unsigned :2;
+        unsigned IRQ_POL:1;
+        unsigned :3;
+        unsigned IRQ_EN:1;
+        unsigned :3;
+        unsigned IRQ_INT:1;
+        unsigned INT_DEAS_STS:1;
+        unsigned INT_DEAS_CLR:1;
+        unsigned :9;
+        unsigned INT_DEAS:8;
+    };
+} REG_IRQ_CFG;
+
 // 8.3.2 INTERRUPT STATUS REGISTER (INT_STS)
 
-union {
+typedef union {
     uint32_t value;
     struct {
         unsigned :3;
@@ -42,7 +62,7 @@ union {
 
 // 8.3.3 INTERRUPT ENABLE REGISTER (INT_EN)
 
-union {
+typedef union {
     uint32_t value;
     struct {
         unsigned :3;
@@ -81,7 +101,7 @@ union {
 
 // 17.1.1 CHIP ID AND REVISION
 
-union {
+typedef union {
     uint32_t value;
     struct {
         unsigned REVISION: 16;
@@ -91,7 +111,7 @@ union {
 
 // 17.1.3 HARDWARE CONFIGURATION REGISTER (HW_CFG)
 
-union {
+typedef union {
     uint32_t value;
     struct {
         unsigned :12;
@@ -110,7 +130,7 @@ union {
 
 // 11.14.1 FIFO LEVEL INTERRUPT REGISTER (FIFO_INT)
 
-union {
+typedef union {
     uint32_t value;
     struct {
         unsigned RSFL: 8;
@@ -126,7 +146,7 @@ union {
 
 // 11.14.5 RX FIFO INFORMATION REGISTER (RX_FIFO_INF)
 
-union {
+typedef union {
     uint32_t value;
     struct {
         unsigned RXDUSED:16;
@@ -137,7 +157,7 @@ union {
 
 // 11.14.6 TX FIFO INFORMATION REGISTER (TX_FIFO_INF)
 
-union {
+typedef union {
     uint32_t value;
     struct {
         unsigned TXFREE:16;
@@ -148,7 +168,7 @@ union {
 
 // 11.14.7 HOST MAC RX DROPPED FRAMES COUNTER REGISTER (RX_DROP)
 
-union {
+typedef union {
     uint32_t value;
     struct {
         unsigned RX_DFC:32;
@@ -157,7 +177,7 @@ union {
 
 // 11.14.8 HOST MAC CSR INTERFACE COMMAND REGISTER (MAC_CSR_CMD)
 
-union {
+typedef union {
     uint32_t value;
     struct {
         unsigned CSRADDR:8;
@@ -171,7 +191,7 @@ union {
 
 // 11.15.2 HOST MAC ADDRESS HIGH REGISTER (HMAC_ADDRH)
 
-union {
+typedef union {
     uint32_t value;
     struct {
         unsigned ADDR4:8;
@@ -182,7 +202,7 @@ union {
 
 // 11.15.3 HOST MAC ADDRESS LOW REGISTER (HMAC_ADDRL)
 
-union {
+typedef union {
     uint32_t value;
     struct {
         unsigned ADDR0:8;
