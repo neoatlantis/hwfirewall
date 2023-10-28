@@ -3,6 +3,80 @@
 
 #include "stdint.h"
 
+// 8.3.2 INTERRUPT STATUS REGISTER (INT_STS)
+
+union {
+    uint32_t value;
+    struct {
+        unsigned :3;
+        unsigned RSFL:1;
+        unsigned RSFF:1;
+        unsigned :1;
+        unsigned RXDF_INT:1;
+        unsigned TSFL:1;
+        unsigned TSFF:1;
+        unsigned TDFA:1;
+        unsigned TDFO:1;
+        unsigned :1;
+        unsigned GPIO:1;
+        unsigned TXE_INT:1;
+        unsigned RXE_INT:1;
+        unsigned RWT_INT:1;
+        unsigned TXSO:1;
+        unsigned PME_INT:1;
+        unsigned :1;
+        unsigned GPT_INT:1;
+        unsigned RXD_INT:1;
+        unsigned TIOC_INT:1;
+        unsigned :1;
+        unsigned RXDFH_INT:1;
+        unsigned RXSTOP_INT:1;
+        unsigned TXSTOP_INT:1;
+        unsigned PHY_INT:1;
+        unsigned :2;
+        unsigned _1588_EVNT:1;
+        unsigned READY:1;
+        unsigned SW_INT:1;
+    };
+} REG_INT_STS;
+
+// 8.3.3 INTERRUPT ENABLE REGISTER (INT_EN)
+
+union {
+    uint32_t value;
+    struct {
+        unsigned :3;
+        unsigned RSFL_EN:1;
+        unsigned RSFF_EN:1;
+        unsigned :1;
+        unsigned RXDF_INT_EN:1;
+        unsigned TSFL_EN:1;
+        unsigned TSFF_EN:1;
+        unsigned TDFA_EN:1;
+        unsigned TDFO_EN:1;
+        unsigned :1;
+        unsigned GPIO_EN:1;
+        unsigned TXE_INT_EN:1;
+        unsigned RXE_INT_EN:1;
+        unsigned RWT_INT_EN:1;
+        unsigned TXSO_EN:1;
+        unsigned PME_INT_EN:1;
+        unsigned :1;
+        unsigned GPT_INT_EN:1;
+        unsigned RXD_INT_EN:1;
+        unsigned TIOC_INT_EN:1;
+        unsigned :1;
+        unsigned RXDFH_INT_EN:1;
+        unsigned RXSTOP_INT_EN:1;
+        unsigned TXSTOP_INT_EN:1;
+        unsigned PHY_INT_EN:1;
+        unsigned :2;
+        unsigned _1588_EVNT_EN:1;
+        unsigned READY_EN:1;
+        unsigned SW_INT_EN:1;
+    };
+} REG_INT_EN;
+
 // 17.1 Miscellaneous System Configuration & Status Registers
 
 // 17.1.1 CHIP ID AND REVISION
