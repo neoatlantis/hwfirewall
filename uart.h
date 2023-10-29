@@ -19,7 +19,7 @@
 #define _UART_H
 
 #include "system_config.h"
-#define BAUDRATE 9600
+#define BAUDRATE 115200
 #define BRG_VAL  (PBCLK / 16 / BAUDRATE - 1)
 
 void putch(char);

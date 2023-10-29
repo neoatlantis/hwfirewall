@@ -25,6 +25,7 @@
 
 #include "lan9250_register_struct.h"
 typedef struct {
+    REG_RESET_CTL       RESET_CTL;
     REG_IRQ_CFG         IRQ_CFG;
     REG_INT_STS         INT_STS;
     REG_INT_EN          INT_EN;
@@ -58,6 +59,20 @@ typedef struct {
     uint32_t MAC_ADDR_H;
     uint32_t MAC_ADDR_L;
 } LAN9250Config;
+
+
+// to write a register via SPI, use example:
+//  lan9250_write_sysreg(IRQ_CFG);
+// and translates to
+//  lan9250_write_dword(nic, ADDR_IRQ_CFG, &nic->registers.IRQ_CFG.value);
+
+#define __NIC_REGISTERS_X_VALUE(name) nic->registers.name.value
+#define __ADDR_X(name)                ADDR_ ## name
+#define lan9250_write_sysreg(name) \
+    lan9250_write_dword(nic, __ADDR_X(name), &(__NIC_REGISTERS_X_VALUE(name)))
+#define lan9250_read_sysreg(name) \
+    lan9250_read_dword(nic, __ADDR_X(name), &(__NIC_REGISTERS_X_VALUE(name)))
+
 
 
 
