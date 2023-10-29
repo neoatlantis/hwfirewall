@@ -1,7 +1,7 @@
+//#include <stdint.h>
+
 #ifndef _LAN9250_REGISTER_STRUCT
 #define _LAN9250_REGISTER_STRUCT
-
-#include "stdint.h"
 
 // 6.2.3.1 Reset Control Register (RESET_CTL)
 
@@ -170,7 +170,7 @@ typedef union {
         unsigned RX_FFWD:1;
     };
 } REG_RX_DP_CTRL;
-#define ADDR_REG_RX_DP_CTRL 0x78
+#define ADDR_RX_DP_CTRL 0x78
 
 
 // 11.14.5 RX FIFO INFORMATION REGISTER (RX_FIFO_INF)

@@ -9,6 +9,8 @@
         <itemPath>lan9250_register_struct.h</itemPath>
         <itemPath>lan9250_io.h</itemPath>
         <itemPath>lan9250_hw_def.h</itemPath>
+        <itemPath>lan9250_op.h</itemPath>
+        <itemPath>lan9250_nic_def.h</itemPath>
       </logicalFolder>
       <itemPath>uart.h</itemPath>
       <itemPath>config_bits.h</itemPath>
@@ -26,6 +28,7 @@
         <itemPath>lan9250.c</itemPath>
         <itemPath>lan9250_io.c</itemPath>
         <itemPath>lan9250_hw_def.c</itemPath>
+        <itemPath>lan9250_op.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>uart.c</itemPath>

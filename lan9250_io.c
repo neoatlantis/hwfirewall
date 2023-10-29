@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include "lan9250.h"
 #include "spi.h"
+#include "lan9250_io.h"
+#include "lan9250_nic_def.h"
 
 bool lan9250_read_dword(LAN9250Resource* nic, uint16_t addr, uint32_t* ret){
     nic->deselect();
