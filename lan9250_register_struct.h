@@ -178,8 +178,8 @@ typedef union {
 typedef union {
     uint32_t value;
     struct {
-        unsigned RXDUSED:16;
-        unsigned RXSUSED:8;
+        unsigned RXDUSED:16;    // bytes of total data in RX FIFO
+        unsigned RXSUSED:8;     // dwords of status in RX Status FIFO
         unsigned :8;
     };
 } REG_RX_FIFO_INF;
@@ -280,5 +280,42 @@ typedef union {
         unsigned ADDR3:8;
     };
 } REG_HMAC_ADDR_L;
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// We here define dwords that are retrieved out of FIFO, which do not belong
+// to any registers.
+
+// 11.12.3 RX STATUS FORMAT
+
+typedef union {
+    uint32_t value;
+    struct {
+        unsigned :1;
+        unsigned CRC_ERROR:1;
+        unsigned DRIBBLING_BIT:1;
+        unsigned MII_ERROR:1;
+        unsigned RX_WDT_ERROR:1;
+        unsigned FRAME_TYPE:1;
+        unsigned COLLISION_SEEN:1;
+        unsigned FRAME_TOO_LONG:1;
+        unsigned :2;
+        unsigned MULTICAST_FRAME:1;
+        unsigned RUNT_FRAME:1;
+        unsigned LENGTH_ERROR:1;
+        unsigned BROADCAST_FRAME:1;
+        unsigned :1;
+        unsigned ERROR_STATUS:1;
+        unsigned LENGTH:14;
+        unsigned FILTERING_FAIL:1;
+        unsigned PACKET_FILTER:1;
+    };
+} DWORD_RX_STATUS;
+
+
+
+
 
 #endif

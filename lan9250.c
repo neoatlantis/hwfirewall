@@ -90,30 +90,6 @@ bool lan9250_write_hw_cfg(LAN9250Resource* nic){
     return lan9250_write_dword(nic, 0x74, &nic->registers.HW_CFG.value);
 }
 
-bool lan9250_read_mac_csr(LAN9250Resource* nic, uint8_t addr, uint32_t *result){
-    nic->registers.MAC_CSR_CMD.CSRADDR = addr;
-    nic->registers.MAC_CSR_CMD.RW = 1; // 1-read, 0-write
-    nic->registers.MAC_CSR_CMD.HMAC_CSR_BUSY = 1;
-    lan9250_write_sysreg(MAC_CSR_CMD);
-    do{
-        lan9250_read_sysreg(MAC_CSR_CMD);
-    } while(nic->registers.MAC_CSR_CMD.HMAC_CSR_BUSY);
-    return lan9250_read_dword(nic, 0xA8, result);
-}
-
-bool lan9250_write_mac_csr(LAN9250Resource* nic, uint8_t addr, uint32_t *value){
-    lan9250_write_dword(nic, ADDR_MAC_CSR_DATA, value); // write to HMAC_CSR_DATA
-    nic->registers.MAC_CSR_CMD.CSRADDR = addr;
-    nic->registers.MAC_CSR_CMD.RW = 0; // 1-read, 0-write
-    nic->registers.MAC_CSR_CMD.HMAC_CSR_BUSY = 1;
-    lan9250_write_sysreg(MAC_CSR_CMD);
-    do{
-        lan9250_read_sysreg(MAC_CSR_CMD);
-    } while(nic->registers.MAC_CSR_CMD.HMAC_CSR_BUSY);
-    return true;
-}
-
-
 void lan9250_drop_packet(LAN9250Resource *nic, size_t bytesLength){
     size_t i = 0;
     if(bytesLength >= 16){

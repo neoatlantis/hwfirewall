@@ -29,6 +29,32 @@ bool lan9250_write_dword(LAN9250Resource* nic, uint16_t addr, uint32_t* value){
     return true;
 }
 
+
+bool lan9250_read_mac_csr(LAN9250Resource* nic, uint8_t addr, uint32_t *result){
+    nic->registers.MAC_CSR_CMD.CSRADDR = addr;
+    nic->registers.MAC_CSR_CMD.RW = 1; // 1-read, 0-write
+    nic->registers.MAC_CSR_CMD.HMAC_CSR_BUSY = 1;
+    lan9250_write_sysreg(MAC_CSR_CMD);
+    do{
+        lan9250_read_sysreg(MAC_CSR_CMD);
+    } while(nic->registers.MAC_CSR_CMD.HMAC_CSR_BUSY);
+    return lan9250_read_dword(nic, 0xA8, result);
+}
+
+bool lan9250_write_mac_csr(LAN9250Resource* nic, uint8_t addr, uint32_t *value){
+    lan9250_write_dword(nic, ADDR_MAC_CSR_DATA, value); // write to HMAC_CSR_DATA
+    nic->registers.MAC_CSR_CMD.CSRADDR = addr;
+    nic->registers.MAC_CSR_CMD.RW = 0; // 1-read, 0-write
+    nic->registers.MAC_CSR_CMD.HMAC_CSR_BUSY = 1;
+    lan9250_write_sysreg(MAC_CSR_CMD);
+    do{
+        lan9250_read_sysreg(MAC_CSR_CMD);
+    } while(nic->registers.MAC_CSR_CMD.HMAC_CSR_BUSY);
+    return true;
+}
+
+
+
 /*bool lan9250_read_n_bytes(LAN9250Resource nic, uint32_t* buffer, size_t bufferSize, uint16_t addr, size_t n){
     nic.deselect();
     
