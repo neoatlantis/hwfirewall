@@ -213,6 +213,41 @@ typedef union {
 #define ADDR_MAC_CSR_DATA 0xA8
 
 
+// 11.15.1 HOST MAC CONTROL REGISTER (HMAC_CR)
+
+typedef union {
+    uint32_t value;
+    struct {
+        unsigned :2;
+        unsigned RXEN:1;
+        unsigned TXEN:1;
+        unsigned :1;
+        unsigned DFCHK:1;
+        unsigned BOLMT:2;
+        unsigned PADSTR:1;
+        unsigned :1;
+        unsigned DISRTY:1;
+        unsigned BCAST:1;
+        unsigned :1;
+        unsigned HPFILT:1;
+        unsigned :1;
+        unsigned HO:1;
+        unsigned PASSBAD:1;
+        unsigned INVFILT:1;
+        unsigned PRMS:1;
+        unsigned MCPAS:1;
+        unsigned FDPX:1;
+        unsigned LOOPPBK:1;
+        unsigned :1;
+        unsigned PCVOWN:1;
+        unsigned :1;
+        unsigned HMAC_EEE_ENABLE:1;
+        unsigned :5;
+        unsigned RXALL:1;
+    };
+} REG_HMAC_CR;
+
+
 
 // 11.15.2 HOST MAC ADDRESS HIGH REGISTER (HMAC_ADDRH)
 

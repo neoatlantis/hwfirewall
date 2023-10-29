@@ -22,11 +22,14 @@ void lan9250_select_1(void);
 void lan9250_select_2(void);
 void lan9250_deselect_1(void);
 void lan9250_deselect_2(void);
+void lan9250_reset_1(void);
+void lan9250_reset_2(void);
 void lan9250_enable_interrupt_1(void);
 void lan9250_enable_interrupt_2(void);
 void lan9250_disable_interrupt_1(void);
 void lan9250_disable_interrupt_2(void);
-
+void lan9250_clear_interrupt_1(void);
+void lan9250_clear_interrupt_2(void);
 
 
 #endif /* _EXAMPLE_FILE_NAME_H */

@@ -38,14 +38,17 @@ typedef struct {
     REG_MAC_CSR_CMD     MAC_CSR_CMD;
     REG_HMAC_ADDR_H     HMAC_ADDR_H;
     REG_HMAC_ADDR_L     HMAC_ADDR_L;
+    REG_HMAC_CR         HMAC_CR;
 } LAN9250Registers;
 
 typedef struct {
     uint8_t buffer[1536];
     void (*select)(void);
     void (*deselect)(void);
+    void (*hardware_reset)(void);
     void (*enable_interrupt)(void);
     void (*disable_interrupt)(void);
+    void (*clear_interrupt)(void);
     LAN9250Registers registers;
 } LAN9250Resource;
 

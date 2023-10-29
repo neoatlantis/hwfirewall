@@ -5,7 +5,7 @@
 
 // SYSCLK should now be 96 MHz.
 #define SYSCLK 96000000
-#define PBCLK  48000000
+#define PBCLK  SYSCLK / 4
 
 
 

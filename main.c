@@ -37,6 +37,9 @@ void main(void) {
     lan9250_init(1, nic1_config);
     lan9250_init(2, nic2_config);
     
+    INTCONSET = _INTCON_MVEC_MASK;
+    
+    __builtin_enable_interrupts();
     
     while(1){
         WDTCONbits.WDTCLR = 1;

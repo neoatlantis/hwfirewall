@@ -15,24 +15,30 @@ LAN9250Resource lan9250_resources[2] = {
         .buffer = {0},
         .select = lan9250_select_1,
         .deselect = lan9250_deselect_1,
+        .hardware_reset = lan9250_reset_1,
         .enable_interrupt = lan9250_enable_interrupt_1,
-        .disable_interrupt = lan9250_disable_interrupt_1
+        .disable_interrupt = lan9250_disable_interrupt_1,
+        .clear_interrupt = lan9250_clear_interrupt_1
     },
     {
         .buffer = {0},
         .select = lan9250_select_2,
         .deselect = lan9250_deselect_2,
+        .hardware_reset = lan9250_reset_2,
         .enable_interrupt = lan9250_enable_interrupt_2,
-        .disable_interrupt = lan9250_disable_interrupt_2
+        .disable_interrupt = lan9250_disable_interrupt_2,
+        .clear_interrupt = lan9250_clear_interrupt_2
     }
 };
 
-void __ISR(_EXTERNAL_1_VECTOR, IPL7AUTO) on_external_interrupt_1(void){
+void __ISR(_EXTERNAL_1_VECTOR, IPL7SOFT) on_external_interrupt_1(void){
     printf("Interrupt 1\n\r");
+    lan9250_resources[0].clear_interrupt();
 }
 
-void __ISR(_EXTERNAL_2_VECTOR, IPL7AUTO) on_external_interrupt_2(void){
+void __ISR(_EXTERNAL_2_VECTOR, IPL7SOFT) on_external_interrupt_2(void){
     printf("Interrupt 2\n\r");
+    lan9250_resources[1].clear_interrupt();
 }
 
 
@@ -89,6 +95,9 @@ bool lan9250_write_mac_csr(LAN9250Resource* nic, uint8_t addr, uint32_t *value){
 void lan9250_init(char slot, LAN9250Config config){
     LAN9250Resource* nic = &lan9250_resources[slot-1];
     nic->disable_interrupt();
+    printf("HW reset...");
+    nic->hardware_reset();
+    printf("done.\n\r");
     
     printf("Activated LAN9250, waiting for ready...\n\r");
     
@@ -128,7 +137,7 @@ void lan9250_init(char slot, LAN9250Config config){
     );
     
     // configure NIC external interrupt pin and enable interrupt on nic
-    nic->registers.IRQ_CFG.IRQ_TYPE = 1; // push-pull
+    nic->registers.IRQ_CFG.IRQ_TYPE = 1; 
     nic->registers.IRQ_CFG.IRQ_POL = 0;  // active low
     nic->registers.IRQ_CFG.INT_DEAS = 1; // 10 us * 1
     nic->registers.IRQ_CFG.IRQ_EN = 1;   // enable irq
@@ -138,7 +147,14 @@ void lan9250_init(char slot, LAN9250Config config){
     nic->registers.INT_EN.RSFL_EN = 1; // receiver fifo reaches level (default 0)
     nic->registers.INT_EN.RSFF_EN = 1; // receiver fifo full
     nic->registers.INT_EN.TDFA_EN = 1; // transmit fifo available
+    lan9250_write_sysreg(INT_EN);
+    
+    // enable receiver
+    nic->registers.HMAC_CR.RXEN = 1;
+    lan9250_write_mac_csr(nic, 0x01, &nic->registers.HMAC_CR.value);
     
     // enable host controller interrupt
     nic->enable_interrupt();
+    
+    printf("Interrupt for this NIC enabled.\n\r");
 }
