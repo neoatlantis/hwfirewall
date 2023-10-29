@@ -11,6 +11,7 @@
         <itemPath>lan9250_hw_def.h</itemPath>
         <itemPath>lan9250_op.h</itemPath>
         <itemPath>lan9250_nic_def.h</itemPath>
+        <itemPath>lan9250_config.h</itemPath>
       </logicalFolder>
       <itemPath>uart.h</itemPath>
       <itemPath>config_bits.h</itemPath>

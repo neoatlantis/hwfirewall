@@ -17,16 +17,6 @@
 
 
 void main(void) {
-    LAN9250Config nic1_config = {
-        .MAC_ADDR_H = 0x0000AAAA,
-        .MAC_ADDR_L = 0xDEADBEEF
-    };
-    LAN9250Config nic2_config = {
-        .MAC_ADDR_H = 0xCAFEBABE,
-        .MAC_ADDR_L = 0xDEADBEEF
-    };
-    
-    
     spi2_enable();
     uart2_enable();
     printf("\n\r----\n\r");
@@ -34,8 +24,7 @@ void main(void) {
     
     printf("Initialize LAN9250 at slot 1...");
     
-    lan9250_init(1, nic1_config);
-    lan9250_init(2, nic2_config);
+    lan9250_init();
     
     INTCONSET = _INTCON_MVEC_MASK;
     
@@ -43,6 +32,7 @@ void main(void) {
     
     while(1){
         WDTCONbits.WDTCLR = 1;
+        lan9250_run_once();
     }
     
     return;

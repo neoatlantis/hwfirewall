@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdio.h>
 #include "lan9250_io.h"
 #include "lan9250_op.h"
 #include "lan9250_nic_def.h"
@@ -37,9 +38,38 @@ void lan9250_drop_packet(LAN9250Resource *nic, size_t bytesLength){
             lan9250_read_sysreg(RX_DP_CTRL);
         } while (nic->registers.RX_DP_CTRL.RX_FFWD);
     } else {
+        uint32_t temp;
         for(i = 0; i < bytesLength; i += 4){
             //Perform standard PIO read operation
-            //lan9250_read_sysreg(RX_DATA_FIFO);
-       }
+            lan9250_read_dword(nic, ADDR_RX_DATA_FIFO, &temp);
+        }
     }
+}
+
+void lan9250_rx_dump(LAN9250Resource *nic){
+    // stops the receiver, performs a dump, and resume the receiver
+    // requires interrupt for updating INT_STS with RX_STOP information.
+    nic->registers.HMAC_CR.RXEN = 0;
+    lan9250_write_mac_csr(nic, 0x01, &nic->registers.HMAC_CR.value);
+    // wait for receiver to stop
+    while(!nic->registers.INT_STS.RXSTOP_INT);
+    printf("Receiver stopped for dump.\n\r");
+    lan9250_read_sysreg(RX_CFG);
+    nic->registers.RX_CFG.RX_DUMP = 1;
+    lan9250_write_sysreg(RX_CFG);
+    // enable RX again
+    nic->registers.HMAC_CR.RXEN = 1;
+    lan9250_write_mac_csr(nic, 0x01, &nic->registers.HMAC_CR.value);
+}
+
+DWORD_RX_STATUS lan9250_rx_status_fifo_pop(LAN9250Resource *nic){
+    DWORD_RX_STATUS ret;
+    lan9250_read_dword(nic, ADDR_RX_STATUS_FIFO, &ret.value);
+    return ret;    
+}
+
+DWORD_RX_STATUS lan9250_rx_status_fifo_peek(LAN9250Resource *nic){
+    DWORD_RX_STATUS ret;
+    lan9250_read_dword(nic, ADDR_RX_STATUS_FIFO_PEEK, &ret.value);
+    return ret;    
 }

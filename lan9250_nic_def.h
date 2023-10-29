@@ -2,14 +2,16 @@
 #define _LAN9250_NIC_DEF_H
 
 #include "lan9250_register_struct.h"
+#include "lan9250_config.h"
 typedef struct {
     REG_RESET_CTL       RESET_CTL;
     REG_IRQ_CFG         IRQ_CFG;
-    REG_INT_STS         INT_STS;
+    REG_INT_STS         INT_STS;        // updated on interrupt, reflects the last interrupt status
     REG_INT_EN          INT_EN;
     REG_ID_REV          ID_REV;
     REG_HW_CFG          HW_CFG;
     REG_FIFO_INT        FIFO_INT;
+    REG_RX_CFG          RX_CFG;
     REG_RX_DP_CTRL      RX_DP_CTRL;
     REG_RX_FIFO_INF     RX_FIFO_INF;
     REG_TX_FIFO_INF     TX_FIFO_INF;
@@ -21,7 +23,8 @@ typedef struct {
 } LAN9250Registers;
 
 typedef struct {
-    uint8_t buffer[1536];
+    uint8_t buffer[LAN9250_NIC_BUFFER_SIZE];
+    uint16_t bufferSize;
     void (*select)(void);
     void (*deselect)(void);
     void (*hardware_reset)(void);

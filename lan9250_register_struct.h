@@ -3,6 +3,15 @@
 #ifndef _LAN9250_REGISTER_STRUCT
 #define _LAN9250_REGISTER_STRUCT
 
+// 5.0 FIFOs
+
+#define ADDR_RX_DATA_FIFO 0x00
+#define ADDR_TX_DATA_FIFO 0x20
+#define ADDR_RX_STATUS_FIFO  0x40
+#define ADDR_RX_STATUS_FIFO_PEEK 0x44
+#define ADDR_TX_STATUS_FIFO  0X48
+#define ADDR_TX_STATUS_FIFO_PEEK 0x4C
+
 // 6.2.3.1 Reset Control Register (RESET_CTL)
 
 typedef union {
@@ -160,7 +169,21 @@ typedef union {
 } REG_FIFO_INT;
 #define ADDR_FIFO_INT 0x68
 
+// 11.14.2 RECEIVE CONFIGURATION REGISTER (RX_CFG)
 
+typedef union {
+    uint32_t value;
+    struct{
+        unsigned :8;
+        unsigned RXDOFF:5;
+        unsigned :2;
+        unsigned RX_DUMP:1;
+        unsigned RX_DMA_CNT:12;
+        unsigned :2;
+        unsigned RX_EA:2;
+    };
+} REG_RX_CFG;
+#define ADDR_RX_CFG 0x6C
 
 // 11.14.4 RECEIVE DATAPATH CONTROL REGISTER (RX_DP_CTRL)
 typedef union {

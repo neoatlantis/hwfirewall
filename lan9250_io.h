@@ -25,9 +25,7 @@ bool lan9250_read_dword(LAN9250Resource* nic, uint16_t addr, uint32_t* ret);
 bool lan9250_write_dword(LAN9250Resource* nic, uint16_t addr, uint32_t* value);
 bool lan9250_read_mac_csr(LAN9250Resource* nic, uint8_t addr, uint32_t *result);
 bool lan9250_write_mac_csr(LAN9250Resource* nic, uint8_t addr, uint32_t *value);
-
-/*bool lan9250_read_n_bytes(LAN9250Resource nic, uint32_t* buffer, size_t bufferSize, uint16_t addr, size_t n);
-bool lan9250_write_n_bytes(LAN9250Resource nic, uint32_t* buffer, size_t bufferSize, uint16_t addr, size_t n);*/
+bool lan9250_read_fifo(LAN9250Resource* nic, uint16_t length);
 
 // to write a register via SPI, use example:
 //  lan9250_write_sysreg(IRQ_CFG);

@@ -7,6 +7,7 @@
 #include "lan9250.h"
 #include "lan9250_hw_def.h"
 #include "lan9250_nic_def.h"
+#include "lan9250_config.h"
 #include "lan9250_io.h"
 #include "lan9250_op.h"
 
@@ -38,25 +39,19 @@ LAN9250Resource lan9250_resources[2] = {
 
 
 void lan9250_on_external_interrupt(LAN9250Resource* nic){
+    // On interrupt, refresh some register values for given nic, then exit the
+    // ISR. All other jobs done in polling mechanism.
+    
     lan9250_read_sysreg(INT_STS);
-    printf("interrupt! %x", nic->registers.INT_STS.value);
     
     if(nic->registers.INT_STS.RSFL){
         // receiving FIFO level reached.
         lan9250_read_sysreg(RX_FIFO_INF);
-        printf(
-            "RX FIFO usage: status %d dwords, data %d dwords",
-            nic->registers.RX_FIFO_INF.RXSUSED,
-            nic->registers.RX_FIFO_INF.RXDUSED
-        );
     }
     
-    
-    
-    nic->registers.INT_STS.value = 0xFFFFFFFF; // write clear all interrupt flags
-    lan9250_write_sysreg(INT_STS);
-    lan9250_read_sysreg(INT_STS);
-    printf("interrupt sts after clear: %x", nic->registers.INT_STS.value);
+    // always clear INT_STS on chip afterwards
+    uint32_t reset_value = 0xFFFFFFFF;
+    lan9250_write_dword(nic, ADDR_INT_STS, &reset_value);
     nic->clear_interrupt();
 }
 
@@ -74,7 +69,7 @@ void __ISR(_EXTERNAL_2_VECTOR, IPL7SOFT) on_external_interrupt_2(void){
 
 
 
-void lan9250_init(char slot, LAN9250Config config){
+void lan9250_init_nic(char slot, LAN9250Config config){
     LAN9250Resource* nic = &lan9250_resources[slot-1];
     nic->disable_interrupt();
     printf("HW reset...");
@@ -126,6 +121,7 @@ void lan9250_init(char slot, LAN9250Config config){
     lan9250_write_sysreg(IRQ_CFG);
     
     // enable specific interrupts on nic
+    nic->registers.INT_EN.RXSTOP_INT_EN = 1; // on receiver stopped
     nic->registers.INT_EN.RSFL_EN = 1; // receiver FIFO reaches level (default 0)
     nic->registers.INT_EN.RSFF_EN = 1; // receiver FIFO full
     nic->registers.INT_EN.TDFA_EN = 1; // transmit FIFO available
@@ -139,4 +135,60 @@ void lan9250_init(char slot, LAN9250Config config){
     nic->enable_interrupt();
     
     printf("Interrupt for this NIC enabled.\n\r");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void lan9250_job_for_nic(LAN9250Resource *nic){
+    uint16_t rx_info_status_used = nic->registers.RX_FIFO_INF.RXSUSED; // dwords
+    uint16_t rx_info_data_used   = nic->registers.RX_FIFO_INF.RXDUSED; // bytes
+    
+    DWORD_RX_STATUS rx_status_error_mask = {
+        .CRC_ERROR = 1,
+        .ERROR_STATUS = 1,
+        .FRAME_TOO_LONG = 1,
+        .MII_ERROR = 1,
+        .RX_WDT_ERROR = 1,
+        .FILTERING_FAIL = 1
+    };
+    
+    if(rx_info_status_used > 0){
+        DWORD_RX_STATUS rx_status = lan9250_rx_status_fifo_pop(nic);
+        printf("RX fifo status: %u, %u bytes", rx_info_status_used, rx_info_data_used);
+        if(rx_status.value & rx_status_error_mask.value != 0){
+            // RX error detected, drop packet
+            lan9250_drop_packet(nic, rx_status.LENGTH);
+            printf("RX dropped a packet.\n\r");
+        } else {
+            if(lan9250_read_fifo(nic, rx_status.LENGTH)){
+                for(uint16_t i=0; i<nic->bufferSize;i++){
+                    printf("%2x ", nic->buffer[i]);
+                }
+                printf("\n\r");
+            } else {
+                // buffer not enough and got false, drop packet.
+                lan9250_drop_packet(nic, rx_status.LENGTH);
+                printf("RX skipped a packet.\n\r");
+            }
+        }
+    }
+    
+    
+    
+    
+    lan9250_read_sysreg(RX_FIFO_INF);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void lan9250_init(void){
+    LAN9250Config nic1_config = LAN9250_NIC1_CONFIG;
+    LAN9250Config nic2_config = LAN9250_NIC2_CONFIG;
+    lan9250_init_nic(1, nic1_config);
+    lan9250_init_nic(2, nic2_config);
+}
+
+void lan9250_run_once(void){
+    lan9250_job_for_nic(&lan9250_resources[0]);
+    lan9250_job_for_nic(&lan9250_resources[1]);
 }
