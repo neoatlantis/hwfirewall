@@ -53,6 +53,8 @@ void lan9250_on_external_interrupt(LAN9250Resource* nic){
     
     nic->registers.INT_STS.value = 0xFFFFFFFF; // write clear all interrupt flags
     lan9250_write_sysreg(INT_STS);
+    lan9250_read_sysreg(INT_STS);
+    printf("interrupt sts after clear: %x", nic->registers.INT_STS.value);
     nic->clear_interrupt();
 }
 
@@ -110,6 +112,27 @@ bool lan9250_write_mac_csr(LAN9250Resource* nic, uint8_t addr, uint32_t *value){
     } while(nic->registers.MAC_CSR_CMD.HMAC_CSR_BUSY);
     return true;
 }
+
+
+void lan9250_drop_packet(LAN9250Resource *nic, size_t bytesLength){
+    size_t i = 0;
+    if(bytesLength >= 16){
+        // use fast forward
+        nic->registers.RX_DP_CTRL.RX_FFWD = 1;
+        lan9250_write_sysreg(RX_DP_CTRL);
+        do{
+            lan9250_read_sysreg(RX_DP_CTRL);
+        } while (nic->registers.RX_DP_CTRL.RX_FFWD);
+    } else {
+        for(i = 0; i < bytesLength; i += 4){
+            //Perform standard PIO read operation
+            lan9250_read_sysreg(RX_DATA_FIFO);
+       }
+    }
+}
+
+
+
 
 void lan9250_init(char slot, LAN9250Config config){
     LAN9250Resource* nic = &lan9250_resources[slot-1];

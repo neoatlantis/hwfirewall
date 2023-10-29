@@ -32,6 +32,7 @@ typedef struct {
     REG_ID_REV          ID_REV;
     REG_HW_CFG          HW_CFG;
     REG_FIFO_INT        FIFO_INT;
+    REG_RX_DP_CTRL      RX_DP_CTRL;
     REG_RX_FIFO_INF     RX_FIFO_INF;
     REG_TX_FIFO_INF     TX_FIFO_INF;
     REG_RX_DROP         RX_DROP;

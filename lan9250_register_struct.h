@@ -162,6 +162,15 @@ typedef union {
 
 
 
+// 11.14.4 RECEIVE DATAPATH CONTROL REGISTER (RX_DP_CTRL)
+typedef union {
+    uint32_t value;
+    struct{
+        unsigned :31;
+        unsigned RX_FFWD:1;
+    };
+} REG_RX_DP_CTRL;
+#define ADDR_REG_RX_DP_CTRL 0x78
 
 
 // 11.14.5 RX FIFO INFORMATION REGISTER (RX_FIFO_INF)
