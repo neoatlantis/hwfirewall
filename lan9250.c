@@ -31,19 +31,38 @@ LAN9250Resource lan9250_resources[2] = {
     }
 };
 
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+void lan9250_on_external_interrupt(LAN9250Resource* nic){
+    lan9250_read_sysreg(INT_STS);
+    printf("interrupt! %x", nic->registers.INT_STS.value);
+    
+    if(nic->registers.INT_STS.RSFL){
+        // receiving FIFO level reached.
+        lan9250_read_sysreg(RX_FIFO_INF);
+        printf(
+            "RX FIFO usage: status %d dwords, data %d dwords",
+            nic->registers.RX_FIFO_INF.RXSUSED,
+            nic->registers.RX_FIFO_INF.RXDUSED
+        );
+    }
+    
+    
+    
+    nic->registers.INT_STS.value = 0xFFFFFFFF; // write clear all interrupt flags
+    lan9250_write_sysreg(INT_STS);
+    nic->clear_interrupt();
+}
+
 void __ISR(_EXTERNAL_1_VECTOR, IPL7SOFT) on_external_interrupt_1(void){
-    printf("Interrupt 1\n\r");
-    lan9250_resources[0].clear_interrupt();
+    lan9250_on_external_interrupt(&lan9250_resources[0]);
 }
 
 void __ISR(_EXTERNAL_2_VECTOR, IPL7SOFT) on_external_interrupt_2(void){
-    printf("Interrupt 2\n\r");
-    lan9250_resources[1].clear_interrupt();
+    lan9250_on_external_interrupt(&lan9250_resources[1]);
 }
-
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -140,13 +159,13 @@ void lan9250_init(char slot, LAN9250Config config){
     nic->registers.IRQ_CFG.IRQ_TYPE = 1; 
     nic->registers.IRQ_CFG.IRQ_POL = 0;  // active low
     nic->registers.IRQ_CFG.INT_DEAS = 1; // 10 us * 1
-    nic->registers.IRQ_CFG.IRQ_EN = 1;   // enable irq
+    nic->registers.IRQ_CFG.IRQ_EN = 1;   // enable IRQ
     lan9250_write_sysreg(IRQ_CFG);
     
     // enable specific interrupts on nic
-    nic->registers.INT_EN.RSFL_EN = 1; // receiver fifo reaches level (default 0)
-    nic->registers.INT_EN.RSFF_EN = 1; // receiver fifo full
-    nic->registers.INT_EN.TDFA_EN = 1; // transmit fifo available
+    nic->registers.INT_EN.RSFL_EN = 1; // receiver FIFO reaches level (default 0)
+    nic->registers.INT_EN.RSFF_EN = 1; // receiver FIFO full
+    nic->registers.INT_EN.TDFA_EN = 1; // transmit FIFO available
     lan9250_write_sysreg(INT_EN);
     
     // enable receiver
