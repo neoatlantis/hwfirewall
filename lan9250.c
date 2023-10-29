@@ -139,9 +139,9 @@ void lan9250_init_nic(char slot, LAN9250Config config){
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void lan9250_job_for_nic(LAN9250Resource *nic){
-    uint16_t rx_info_status_used = nic->registers.RX_FIFO_INF.RXSUSED; // dwords
-    uint16_t rx_info_data_used   = nic->registers.RX_FIFO_INF.RXDUSED; // bytes
+void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
+    uint16_t rx_info_status_used = rxnic->registers.RX_FIFO_INF.RXSUSED; // dwords
+    uint16_t rx_info_data_used   = rxnic->registers.RX_FIFO_INF.RXDUSED; // bytes
     
     DWORD_RX_STATUS rx_status_error_mask = {
         .CRC_ERROR = 1,
@@ -153,21 +153,21 @@ void lan9250_job_for_nic(LAN9250Resource *nic){
     };
     
     if(rx_info_status_used > 0){
-        DWORD_RX_STATUS rx_status = lan9250_rx_status_fifo_pop(nic);
-        printf("RX fifo status: %u, %u bytes", rx_info_status_used, rx_info_data_used);
+        DWORD_RX_STATUS rx_status = lan9250_rx_status_fifo_pop(rxnic);
         if(rx_status.value & rx_status_error_mask.value != 0){
             // RX error detected, drop packet
-            lan9250_drop_packet(nic, rx_status.LENGTH);
+            lan9250_drop_packet(rxnic, rx_status.LENGTH);
             printf("RX dropped a packet.\n\r");
         } else {
-            if(lan9250_read_fifo(nic, rx_status.LENGTH)){
-                for(uint16_t i=0; i<nic->bufferSize;i++){
-                    printf("%2x ", nic->buffer[i]);
+            if(lan9250_read_fifo(rxnic, rx_status.LENGTH)){
+                // we have got a new packet in buffer. deal with it...
+                for(uint16_t i=0; i<rxnic->bufferSize;i++){
+                    printf("%2x ", rxnic->buffer[i]);
                 }
                 printf("\n\r");
             } else {
                 // buffer not enough and got false, drop packet.
-                lan9250_drop_packet(nic, rx_status.LENGTH);
+                lan9250_drop_packet(rxnic, rx_status.LENGTH);
                 printf("RX skipped a packet.\n\r");
             }
         }
@@ -189,6 +189,6 @@ void lan9250_init(void){
 }
 
 void lan9250_run_once(void){
-    lan9250_job_for_nic(&lan9250_resources[0]);
-    lan9250_job_for_nic(&lan9250_resources[1]);
+    lan9250_job_for_nic(&lan9250_resources[0], &lan9250_resources[1]);
+    lan9250_job_for_nic(&lan9250_resources[1], &lan9250_resources[0]);
 }
