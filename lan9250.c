@@ -42,11 +42,36 @@ void lan9250_on_external_interrupt(LAN9250Resource* nic){
     // On interrupt, refresh some register values for given nic, then exit the
     // ISR. All other jobs done in polling mechanism.
     
+    /*
+    nic->registers.INT_EN.RXSTOP_INT_EN = 1; // on receiver stopped
+    nic->registers.INT_EN.RSFL_EN = 1; // receiver FIFO reaches level (default 0)
+    nic->registers.INT_EN.RSFF_EN = 1; // receiver FIFO full
+    nic->registers.INT_EN.TSFL_EN = 1;
+    nic->registers.INT_EN.TSFF_EN = 1;
+    nic->registers.INT_EN.TDFO_EN = 1;
+    nic->registers.INT_EN.TDFA_EN = 1; // transmit FIFO available
+    nic->registers.INT_EN.TXSO_EN = 1; 
+     
+    */
+    
+    
     lan9250_read_sysreg(INT_STS);
     
-    if(nic->registers.INT_STS.RSFL){
-        // receiving FIFO level reached.
+    if(
+        nic->registers.INT_STS.RSFL ||
+        nic->registers.INT_STS.RSFF
+    ){
         lan9250_read_sysreg(RX_FIFO_INF);
+    }
+    
+    if(
+        nic->registers.INT_STS.TSFF ||
+        nic->registers.INT_STS.TSFL ||
+        nic->registers.INT_STS.TDFO ||
+        nic->registers.INT_STS.TDFA ||
+        nic->registers.INT_STS.TXSO
+    ){
+        lan9250_read_sysreg(TX_FIFO_INF);
     }
     
     // always clear INT_STS on chip afterwards
@@ -124,7 +149,11 @@ void lan9250_init_nic(char slot, LAN9250Config config){
     nic->registers.INT_EN.RXSTOP_INT_EN = 1; // on receiver stopped
     nic->registers.INT_EN.RSFL_EN = 1; // receiver FIFO reaches level (default 0)
     nic->registers.INT_EN.RSFF_EN = 1; // receiver FIFO full
+    nic->registers.INT_EN.TSFL_EN = 1;
+    nic->registers.INT_EN.TSFF_EN = 1;
+    nic->registers.INT_EN.TDFO_EN = 1;
     nic->registers.INT_EN.TDFA_EN = 1; // transmit FIFO available
+    nic->registers.INT_EN.TXSO_EN = 1;
     lan9250_write_sysreg(INT_EN);
     
     // enable receiver
