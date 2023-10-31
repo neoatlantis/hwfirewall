@@ -168,9 +168,14 @@ void lan9250_init_nic(char slot, LAN9250Config config){
 
 ////////////////////////////////////////////////////////////////////////////////
 
+uint16_t global_packet_tag = 0;
+
 void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
     uint16_t rx_info_status_used = rxnic->registers.RX_FIFO_INF.RXSUSED; // dwords
+    uint16_t tx_info_status_used = txnic->registers.TX_FIFO_INF.TXSUSED; // dwords
     uint16_t rx_info_data_used   = rxnic->registers.RX_FIFO_INF.RXDUSED; // bytes
+    uint16_t tx_info_data_free   = txnic->registers.TX_FIFO_INF.TXFREE;  // bytes
+    
     
     DWORD_RX_STATUS rx_status_error_mask = {
         .CRC_ERROR = 1,
@@ -199,6 +204,30 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
                 lan9250_drop_packet(rxnic, rx_status.LENGTH);
                 printf("RX skipped a packet.\n\r");
             }
+        }
+    }
+    
+    // TODO shutdown host interrupt for non-interrupted transmission
+    
+    if(rxnic->bufferSize > 0){ // if we have anything to send
+        uint16_t tx_fifo_requirement = rxnic->bufferSize + 8; // plus 2 dwords
+        if(tx_fifo_requirement <= tx_info_data_free){
+            // send the buffer from rx to tx
+            DWORD_TX_COMMAND_A txcmd_a = {
+                .BUFFER_SIZE = rxnic->bufferSize,
+                .BUFFER_END_ALIGNMENT = 0b00, // 4 byte
+                .DATA_START_OFFSET = 0,
+                .FIRST_SEGMENT = 1,
+                .LAST_SEGMENT = 1
+            };
+            DWORD_TX_COMMAND_B txcmd_b = {
+                .ADD_CRC_DISABLE = 0,
+                .PACKET_LENGTH = rxnic->bufferSize,
+                .PACKET_TAG = (global_packet_tag++),
+            };
+            
+        } else {
+            // tx nic buffer full, cannot send
         }
     }
     

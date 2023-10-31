@@ -311,6 +311,39 @@ typedef union {
 // We here define dwords that are retrieved out of FIFO, which do not belong
 // to any registers.
 
+// 11.11.2.1 TX COMMAND 'A'
+
+typedef union {
+    uint32_t value;
+    struct {
+        unsigned BUFFER_SIZE:11;
+        unsigned :1;
+        unsigned LAST_SEGMENT:1;
+        unsigned FIRST_SEGMENT:1;
+        unsigned :2;
+        unsigned DATA_START_OFFSET:5;
+        unsigned :3;
+        unsigned BUFFER_END_ALIGNMENT:2;
+        unsigned :5;
+        unsigned IOC:1;
+    };
+} DWORD_TX_COMMAND_A;
+
+// 11.11.2.2 TX COMMAND 'B'
+
+typedef union {
+    uint32_t value;
+    struct {
+        unsigned PACKET_LENGTH:11;
+        unsigned :1;
+        unsigned DISABLE_ETHERNET_FRAME_PADDING:1;
+        unsigned ADD_CRC_DISABLE:1;
+        unsigned TX_CHECKSUM_ENABLE:1;
+        unsigned :1;
+        unsigned PACKET_TAG:16;
+    };
+} DWORD_TX_COMMAND_B;
+
 // 11.12.3 RX STATUS FORMAT
 
 typedef union {

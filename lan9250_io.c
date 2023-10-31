@@ -80,17 +80,20 @@ bool lan9250_read_fifo(LAN9250Resource* nic, uint16_t length){
     return true;
 }
 
-/*bool lan9250_write_n_bytes(LAN9250Resource nic, uint32_t* buffer, size_t bufferSize, uint16_t addr, size_t n){
-    nic.deselect();
-    if(n > bufferSize) return false;
+bool lan9250_write_fifo(LAN9250Resource nic){
+    nic->deselect();
 
-    uint32_t firstDWord = 0xFF020000 | addr;
-    spi2_set_mode_32();
-    nic.select();
+    spi2_set_mode_8();
+    nic->select();
 
-    spi2_send_and_receive_new(firstDWord, false, false);
-    for(size_t i=0; i<n; i++){
-        spi2_send_and_receive_new(buffer[i], false, true);
+    spi2_send_and_receive_new(0x02, false, false);
+    spi2_send_and_receive_new((uint8_t)(ADDR_TX_DATA_FIFO >> 8), false, false);
+    spi2_send_and_receive_new((uint8_t)(ADDR_TX_DATA_FIFO & 0xFF), false, false);
+    
+    for(uint16_t i=0; i<nic->bufferSize; i++){
+        spi2_send_and_receive_new(nic->buffer[i], false, false);
     }
+    nic->deselect();
+    nic->bufferSize = 0;
     return true;
-}*/
+}
