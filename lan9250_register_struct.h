@@ -1,4 +1,4 @@
-//#include <stdint.h>
+#include <stdint.h>
 
 #ifndef _LAN9250_REGISTER_STRUCT
 #define _LAN9250_REGISTER_STRUCT
@@ -185,7 +185,24 @@ typedef union {
 } REG_RX_CFG;
 #define ADDR_RX_CFG 0x6C
 
+// 11.14.3 TRANSMIT CONFIGURATION REGISTER (TX_CFG)
+
+typedef union {
+    uint32_t value;
+    struct{
+        unsigned STOP_TX:1;
+        unsigned TX_ON:1;
+        unsigned TXSAO:1;
+        unsigned :11;
+        unsigned TXD_DUMP:1;
+        unsigned TXS_DUMP:1;
+        unsigned :16;
+    };
+} REG_TX_CFG;
+#define ADDR_TX_CFG 0x70
+
 // 11.14.4 RECEIVE DATAPATH CONTROL REGISTER (RX_DP_CTRL)
+
 typedef union {
     uint32_t value;
     struct{
@@ -343,6 +360,26 @@ typedef union {
         unsigned PACKET_TAG:16;
     };
 } DWORD_TX_COMMAND_B;
+
+// 11.11.4 TX STATUS FORMAT
+
+typedef union {
+    uint32_t value;
+    struct {
+        unsigned DEFERRED:1;
+        unsigned :1;
+        unsigned EXCESSIVE_DEFERRAL:1;
+        unsigned COLLISION_COUNT:4;
+        unsigned :1;
+        unsigned EXCESSIVE_COLLISIONS:1;
+        unsigned LATE_COLLISION:1;
+        unsigned NO_CARRIER:1;
+        unsigned LOSS_OF_CARRIER:1;
+        unsigned :3;
+        unsigned ERROR_STATUS:1;
+        unsigned PACKET_TAG:16;
+    };
+} DWORD_TX_STATUS;
 
 // 11.12.3 RX STATUS FORMAT
 

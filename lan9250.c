@@ -15,6 +15,7 @@
 
 LAN9250Resource lan9250_resources[2] = {
     {
+        .id = 1,
         .buffer = {0},
         .select = lan9250_select_1,
         .deselect = lan9250_deselect_1,
@@ -24,6 +25,7 @@ LAN9250Resource lan9250_resources[2] = {
         .clear_interrupt = lan9250_clear_interrupt_1
     },
     {
+        .id = 2,
         .buffer = {0},
         .select = lan9250_select_2,
         .deselect = lan9250_deselect_2,
@@ -37,42 +39,18 @@ LAN9250Resource lan9250_resources[2] = {
 ////////////////////////////////////////////////////////////////////////////////
 
 
+void lan9250_refresh_status_registers(LAN9250Resource* nic){
+    lan9250_read_sysreg(INT_STS);
+    lan9250_read_sysreg(RX_FIFO_INF);
+    lan9250_read_sysreg(TX_FIFO_INF);
+}
+
 
 void lan9250_on_external_interrupt(LAN9250Resource* nic){
     // On interrupt, refresh some register values for given nic, then exit the
     // ISR. All other jobs done in polling mechanism.
     
-    /*
-    nic->registers.INT_EN.RXSTOP_INT_EN = 1; // on receiver stopped
-    nic->registers.INT_EN.RSFL_EN = 1; // receiver FIFO reaches level (default 0)
-    nic->registers.INT_EN.RSFF_EN = 1; // receiver FIFO full
-    nic->registers.INT_EN.TSFL_EN = 1;
-    nic->registers.INT_EN.TSFF_EN = 1;
-    nic->registers.INT_EN.TDFO_EN = 1;
-    nic->registers.INT_EN.TDFA_EN = 1; // transmit FIFO available
-    nic->registers.INT_EN.TXSO_EN = 1; 
-     
-    */
-    
-    
-    lan9250_read_sysreg(INT_STS);
-    
-    if(
-        nic->registers.INT_STS.RSFL ||
-        nic->registers.INT_STS.RSFF
-    ){
-        lan9250_read_sysreg(RX_FIFO_INF);
-    }
-    
-    if(
-        nic->registers.INT_STS.TSFF ||
-        nic->registers.INT_STS.TSFL ||
-        nic->registers.INT_STS.TDFO ||
-        nic->registers.INT_STS.TDFA ||
-        nic->registers.INT_STS.TXSO
-    ){
-        lan9250_read_sysreg(TX_FIFO_INF);
-    }
+    lan9250_refresh_status_registers(nic);
     
     // always clear INT_STS on chip afterwards
     uint32_t reset_value = 0xFFFFFFFF;
@@ -156,9 +134,22 @@ void lan9250_init_nic(char slot, LAN9250Config config){
     nic->registers.INT_EN.TXSO_EN = 1;
     lan9250_write_sysreg(INT_EN);
     
-    // enable receiver
+    // enable, rx in promiscuous mode
+    nic->registers.HMAC_CR.PRMS = 1;
+    nic->registers.HMAC_CR.INVFILT = 0;
+    nic->registers.HMAC_CR.RXALL = 1;
+    // enable rx and tx
     nic->registers.HMAC_CR.RXEN = 1;
+    nic->registers.HMAC_CR.TXEN = 1;
+    // full-duplex mode
+    nic->registers.HMAC_CR.FDPX = 1;
     lan9250_write_mac_csr(nic, 0x01, &nic->registers.HMAC_CR.value);
+    
+    // enable transmitter 2
+    lan9250_read_sysreg(TX_CFG);
+    nic->registers.TX_CFG.TX_ON = 1;
+    nic->registers.TX_CFG.TXSAO = 1; // allow tx status fifo overrun
+    lan9250_write_sysreg(TX_CFG);
     
     // enable host controller interrupt
     nic->enable_interrupt();
@@ -171,6 +162,11 @@ void lan9250_init_nic(char slot, LAN9250Config config){
 uint16_t global_packet_tag = 0;
 
 void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
+    bool anything_done = false;
+    
+    lan9250_refresh_status_registers(rxnic);
+    lan9250_refresh_status_registers(txnic);
+    
     uint16_t rx_info_status_used = rxnic->registers.RX_FIFO_INF.RXSUSED; // dwords
     uint16_t tx_info_status_used = txnic->registers.TX_FIFO_INF.TXSUSED; // dwords
     uint16_t rx_info_data_used   = rxnic->registers.RX_FIFO_INF.RXDUSED; // bytes
@@ -187,29 +183,48 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
     };
     
     if(rx_info_status_used > 0){
+        anything_done = true;
+        
         DWORD_RX_STATUS rx_status = lan9250_rx_status_fifo_pop(rxnic);
         if(rx_status.value & rx_status_error_mask.value != 0){
             // RX error detected, drop packet
             lan9250_drop_packet(rxnic, rx_status.LENGTH);
-            printf("RX dropped a packet.\n\r");
+            printf("RDP1,");
         } else {
-            if(lan9250_read_fifo(rxnic, rx_status.LENGTH)){
+            if(rx_status.LENGTH > rx_info_data_used){
+                // strange?
+                lan9250_drop_packet(rxnic, rx_status.LENGTH);
+            } else if(lan9250_read_fifo(rxnic, rx_status.LENGTH)){
                 // we have got a new packet in buffer. deal with it...
-                for(uint16_t i=0; i<rxnic->bufferSize;i++){
+                /*for(uint16_t i=0; i<rxnic->bufferSize;i++){
                     printf("%2x ", rxnic->buffer[i]);
                 }
-                printf("\n\r");
+                printf("\n\r");*/
+                printf("RSUC,");
             } else {
                 // buffer not enough and got false, drop packet.
                 lan9250_drop_packet(rxnic, rx_status.LENGTH);
-                printf("RX skipped a packet.\n\r");
+                printf("RSK1,");
             }
+        }
+    }
+    
+    if(tx_info_status_used > 0){
+        anything_done = true;
+        
+        DWORD_TX_STATUS tx_status = lan9250_tx_status_fifo_pop(txnic);
+        if(tx_status.ERROR_STATUS){
+            printf("TXE=%hx,", tx_status.value);
+        } else {
+            printf("TXOK,");
         }
     }
     
     // TODO shutdown host interrupt for non-interrupted transmission
     
     if(rxnic->bufferSize > 0){ // if we have anything to send
+        anything_done = true;
+        
         uint16_t tx_fifo_requirement = rxnic->bufferSize + 8; // plus 2 dwords
         if(tx_fifo_requirement <= tx_info_data_free){
             // send the buffer from rx to tx
@@ -225,16 +240,25 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
                 .PACKET_LENGTH = rxnic->bufferSize,
                 .PACKET_TAG = (global_packet_tag++),
             };
-            
+            lan9250_write_dword(txnic, ADDR_TX_DATA_FIFO, &txcmd_a.value);
+            lan9250_write_dword(txnic, ADDR_TX_DATA_FIFO, &txcmd_b.value);
+            lan9250_write_fifo(txnic, rxnic);
+            rxnic->bufferSize = 0;
+            printf("TXD,");
         } else {
             // tx nic buffer full, cannot send
+            printf("NOTX,");
+            // dump txd and txs fifo
+            lan9250_tx_dump(txnic);
         }
     }
     
     
+    if(anything_done){
+        printf("/%d%d\n\r", rxnic->id, txnic->id);
+    }
     
-    
-    lan9250_read_sysreg(RX_FIFO_INF);
+//    lan9250_read_sysreg(RX_FIFO_INF);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

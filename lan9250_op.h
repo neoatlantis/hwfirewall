@@ -10,9 +10,12 @@ bool lan9250_read_hw_cfg(LAN9250Resource* nic);
 bool lan9250_write_hw_cfg(LAN9250Resource* nic);
 void lan9250_drop_packet(LAN9250Resource *nic, size_t bytesLength);
 void lan9250_rx_dump(LAN9250Resource *nic);
+void lan9250_tx_dump(LAN9250Resource *nic);
 
 DWORD_RX_STATUS lan9250_rx_status_fifo_pop(LAN9250Resource *nic);
 DWORD_RX_STATUS lan9250_rx_status_fifo_peek(LAN9250Resource *nic);
+DWORD_TX_STATUS lan9250_tx_status_fifo_pop(LAN9250Resource *nic);
+DWORD_TX_STATUS lan9250_tx_status_fifo_peek(LAN9250Resource *nic);
 
 
 #endif

@@ -12,6 +12,7 @@ typedef struct {
     REG_HW_CFG          HW_CFG;
     REG_FIFO_INT        FIFO_INT;
     REG_RX_CFG          RX_CFG;
+    REG_TX_CFG          TX_CFG;
     REG_RX_DP_CTRL      RX_DP_CTRL;
     REG_RX_FIFO_INF     RX_FIFO_INF;
     REG_TX_FIFO_INF     TX_FIFO_INF;
@@ -23,6 +24,7 @@ typedef struct {
 } LAN9250Registers;
 
 typedef struct {
+    uint8_t id;
     uint8_t buffer[LAN9250_NIC_BUFFER_SIZE];
     uint16_t bufferSize;
     void (*select)(void);

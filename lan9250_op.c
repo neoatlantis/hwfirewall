@@ -62,6 +62,14 @@ void lan9250_rx_dump(LAN9250Resource *nic){
     lan9250_write_mac_csr(nic, 0x01, &nic->registers.HMAC_CR.value);
 }
 
+void lan9250_tx_dump(LAN9250Resource *nic){
+    nic->registers.TX_CFG.TXD_DUMP = 1;
+    nic->registers.TX_CFG.TXS_DUMP = 1;
+    nic->registers.TX_CFG.TXSAO = 1;
+    nic->registers.TX_CFG.TX_ON = 1;
+    lan9250_write_sysreg(TX_CFG);
+}
+
 DWORD_RX_STATUS lan9250_rx_status_fifo_pop(LAN9250Resource *nic){
     DWORD_RX_STATUS ret;
     lan9250_read_dword(nic, ADDR_RX_STATUS_FIFO, &ret.value);
@@ -71,5 +79,17 @@ DWORD_RX_STATUS lan9250_rx_status_fifo_pop(LAN9250Resource *nic){
 DWORD_RX_STATUS lan9250_rx_status_fifo_peek(LAN9250Resource *nic){
     DWORD_RX_STATUS ret;
     lan9250_read_dword(nic, ADDR_RX_STATUS_FIFO_PEEK, &ret.value);
+    return ret;    
+}
+
+DWORD_TX_STATUS lan9250_tx_status_fifo_pop(LAN9250Resource *nic){
+    DWORD_TX_STATUS ret;
+    lan9250_read_dword(nic, ADDR_TX_STATUS_FIFO, &ret.value);
+    return ret;    
+}
+
+DWORD_TX_STATUS lan9250_tx_status_fifo_peek(LAN9250Resource *nic){
+    DWORD_TX_STATUS ret;
+    lan9250_read_dword(nic, ADDR_TX_STATUS_FIFO_PEEK, &ret.value);
     return ret;    
 }
