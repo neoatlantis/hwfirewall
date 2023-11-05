@@ -4,6 +4,8 @@
 #include <xc.h>
 #include <sys/attribs.h>
 
+#include "network.h"
+
 #include "lan9250.h"
 #include "lan9250_hw_def.h"
 #include "lan9250_nic_def.h"
@@ -134,10 +136,6 @@ void lan9250_init_nic(char slot, LAN9250Config config){
     nic->registers.INT_EN.TXSO_EN = 1;
     lan9250_write_sysreg(INT_EN);
     
-    // enable, rx in promiscuous mode
-    nic->registers.HMAC_CR.PRMS = 1;
-    nic->registers.HMAC_CR.INVFILT = 0;
-    nic->registers.HMAC_CR.RXALL = 1;
     // enable rx and tx
     nic->registers.HMAC_CR.RXEN = 1;
     nic->registers.HMAC_CR.TXEN = 1;
@@ -243,8 +241,14 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
             lan9250_write_dword(txnic, ADDR_TX_DATA_FIFO, &txcmd_a.value);
             lan9250_write_dword(txnic, ADDR_TX_DATA_FIFO, &txcmd_b.value);
             lan9250_write_fifo(txnic, rxnic);
-            rxnic->bufferSize = 0;
+            
             printf("TXD,");
+            
+            if(rxnic->bufferSize >= 14){
+                printf("%x%x", rxnic->buffer.bytes[12], rxnic->buffer.bytes[13]);
+            }
+            
+            rxnic->bufferSize = 0;
         } else {
             // tx nic buffer full, cannot send
             printf("NOTX,");

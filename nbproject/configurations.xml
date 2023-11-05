@@ -13,6 +13,9 @@
         <itemPath>lan9250_nic_def.h</itemPath>
         <itemPath>lan9250_config.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f2" displayName="network" projectFiles="true">
+        <itemPath>network.h</itemPath>
+      </logicalFolder>
       <itemPath>uart.h</itemPath>
       <itemPath>config_bits.h</itemPath>
       <itemPath>system_config.h</itemPath>
@@ -30,6 +33,9 @@
         <itemPath>lan9250_io.c</itemPath>
         <itemPath>lan9250_hw_def.c</itemPath>
         <itemPath>lan9250_op.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="network" projectFiles="true">
+        <itemPath>network.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>uart.c</itemPath>

@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=lan9250.c lan9250_io.c lan9250_hw_def.c lan9250_op.c main.c uart.c spi.c
+SOURCEFILES_QUOTED_IF_SPACED=lan9250.c lan9250_io.c lan9250_hw_def.c lan9250_op.c main.c uart.c spi.c network.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/lan9250.o ${OBJECTDIR}/lan9250_io.o ${OBJECTDIR}/lan9250_hw_def.o ${OBJECTDIR}/lan9250_op.o ${OBJECTDIR}/main.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/spi.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/lan9250.o.d ${OBJECTDIR}/lan9250_io.o.d ${OBJECTDIR}/lan9250_hw_def.o.d ${OBJECTDIR}/lan9250_op.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/uart.o.d ${OBJECTDIR}/spi.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/lan9250.o ${OBJECTDIR}/lan9250_io.o ${OBJECTDIR}/lan9250_hw_def.o ${OBJECTDIR}/lan9250_op.o ${OBJECTDIR}/main.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/spi.o ${OBJECTDIR}/network.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/lan9250.o.d ${OBJECTDIR}/lan9250_io.o.d ${OBJECTDIR}/lan9250_hw_def.o.d ${OBJECTDIR}/lan9250_op.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/uart.o.d ${OBJECTDIR}/spi.o.d ${OBJECTDIR}/network.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/lan9250.o ${OBJECTDIR}/lan9250_io.o ${OBJECTDIR}/lan9250_hw_def.o ${OBJECTDIR}/lan9250_op.o ${OBJECTDIR}/main.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/spi.o
+OBJECTFILES=${OBJECTDIR}/lan9250.o ${OBJECTDIR}/lan9250_io.o ${OBJECTDIR}/lan9250_hw_def.o ${OBJECTDIR}/lan9250_op.o ${OBJECTDIR}/main.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/spi.o ${OBJECTDIR}/network.o
 
 # Source Files
-SOURCEFILES=lan9250.c lan9250_io.c lan9250_hw_def.c lan9250_op.c main.c uart.c spi.c
+SOURCEFILES=lan9250.c lan9250_io.c lan9250_hw_def.c lan9250_op.c main.c uart.c spi.c network.c
 
 
 
@@ -143,6 +143,12 @@ ${OBJECTDIR}/spi.o: spi.c  .generated_files/flags/default/744dd3d13daf13afa341ca
 	@${RM} ${OBJECTDIR}/spi.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -MP -MMD -MF "${OBJECTDIR}/spi.o.d" -o ${OBJECTDIR}/spi.o spi.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
+${OBJECTDIR}/network.o: network.c  .generated_files/flags/default/762773878b5a4525683c78fd565688fb5575a3c9 .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/network.o.d 
+	@${RM} ${OBJECTDIR}/network.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -MP -MMD -MF "${OBJECTDIR}/network.o.d" -o ${OBJECTDIR}/network.o network.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
 else
 ${OBJECTDIR}/lan9250.o: lan9250.c  .generated_files/flags/default/f9a0102f46286b00b1697e4cea528552180d45a8 .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}" 
@@ -185,6 +191,12 @@ ${OBJECTDIR}/spi.o: spi.c  .generated_files/flags/default/24e74a0a792061c8d44bf9
 	@${RM} ${OBJECTDIR}/spi.o.d 
 	@${RM} ${OBJECTDIR}/spi.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -MP -MMD -MF "${OBJECTDIR}/spi.o.d" -o ${OBJECTDIR}/spi.o spi.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/network.o: network.c  .generated_files/flags/default/b9dd7742b9c6eb40d84fe7e6291ed8566444c911 .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/network.o.d 
+	@${RM} ${OBJECTDIR}/network.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -MP -MMD -MF "${OBJECTDIR}/network.o.d" -o ${OBJECTDIR}/network.o network.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
 endif
 

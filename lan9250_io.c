@@ -73,7 +73,7 @@ bool lan9250_read_fifo(LAN9250Resource* nic, uint16_t length){
     
     // retrieve rest bytes
     for(size_t i=0; i<length; i++){
-        nic->buffer[i] = spi2_send_and_receive_new(0xAA, false, false);
+        nic->buffer.bytes[i] = spi2_send_and_receive_new(0xAA, false, false);
     }
     nic->bufferSize = length;
     nic->deselect();
@@ -93,7 +93,7 @@ bool lan9250_write_fifo(LAN9250Resource* dstnic, LAN9250Resource* srcnic){
     spi2_send_and_receive_new((uint8_t)(ADDR_TX_DATA_FIFO & 0xFF), false, false);
     
     for(uint16_t i=0; i<srcnic->bufferSize; i++){
-        spi2_send_and_receive_new(srcnic->buffer[i], false, false);
+        spi2_send_and_receive_new(srcnic->buffer.bytes[i], false, false);
     }
     nic->deselect();
     nic->bufferSize = 0;

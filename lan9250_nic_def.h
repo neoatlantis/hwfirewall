@@ -1,6 +1,7 @@
 #ifndef _LAN9250_NIC_DEF_H
 #define _LAN9250_NIC_DEF_H
 
+#include <stdbool.h>
 #include "lan9250_register_struct.h"
 #include "lan9250_config.h"
 typedef struct {
@@ -23,10 +24,28 @@ typedef struct {
     REG_HMAC_CR         HMAC_CR;
 } LAN9250Registers;
 
+struct LAN9250EthernetFrame {
+    uint8_t destination[6];
+    uint8_t source[6];
+    uint16_t type_or_length;
+    uint8_t payload[LAN9250_NIC_BUFFER_SIZE-12-2];
+};
+
+typedef union {
+    uint8_t bytes[sizeof(struct LAN9250EthernetFrame)];
+    struct LAN9250EthernetFrame frame;
+} LAN9250EthernetPacket;
+
+struct LAN9250EthernetPacketDecisions {
+    bool forward;
+};
+
+
 typedef struct {
     uint8_t id;
-    uint8_t buffer[LAN9250_NIC_BUFFER_SIZE];
+    LAN9250EthernetPacket buffer;
     uint16_t bufferSize;
+    struct LAN9250EthernetPacketDecisions decisions;
     void (*select)(void);
     void (*deselect)(void);
     void (*hardware_reset)(void);
