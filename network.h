@@ -4,8 +4,7 @@
 
 #include "lan9250_nic_def.h"
 
-void network_decide_on_packet(LAN9250EthernetPacket *packet, struct LAN9250EthernetPacketDecisions*);
+void network_decide_on_packet(LAN9250Resource*);
+bool network_compare_mac_addr(uint8_t *, uint8_t[6]);
 
-
-
-#endif /* _EXAMPLE_FILE_NAME_H */
+#endif

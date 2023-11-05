@@ -27,7 +27,8 @@ typedef struct {
 struct LAN9250EthernetFrame {
     uint8_t destination[6];
     uint8_t source[6];
-    uint16_t type_or_length;
+    uint8_t type_or_length_high;
+    uint8_t type_or_length_low;
     uint8_t payload[LAN9250_NIC_BUFFER_SIZE-12-2];
 };
 
@@ -37,6 +38,8 @@ typedef union {
 } LAN9250EthernetPacket;
 
 struct LAN9250EthernetPacketDecisions {
+    bool decided;
+
     bool forward;
 };
 
@@ -45,6 +48,8 @@ typedef struct {
     uint8_t id;
     LAN9250EthernetPacket buffer;
     uint16_t bufferSize;
+    uint8_t peer_mac[6];
+    bool peer_mac_set;
     struct LAN9250EthernetPacketDecisions decisions;
     void (*select)(void);
     void (*deselect)(void);

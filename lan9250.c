@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <xc.h>
 #include <sys/attribs.h>
 
@@ -19,6 +20,8 @@ LAN9250Resource lan9250_resources[2] = {
     {
         .id = 1,
         .buffer = {0},
+        .peer_mac_set = false,
+        .peer_mac = {0},
         .select = lan9250_select_1,
         .deselect = lan9250_deselect_1,
         .hardware_reset = lan9250_reset_1,
@@ -29,6 +32,8 @@ LAN9250Resource lan9250_resources[2] = {
     {
         .id = 2,
         .buffer = {0},
+        .peer_mac_set = false,
+        .peer_mac = {0},
         .select = lan9250_select_2,
         .deselect = lan9250_deselect_2,
         .hardware_reset = lan9250_reset_2,
@@ -141,6 +146,8 @@ void lan9250_init_nic(char slot, LAN9250Config config){
     nic->registers.HMAC_CR.TXEN = 1;
     // full-duplex mode
     nic->registers.HMAC_CR.FDPX = 1;
+    // enable reception of multicasts, useful for LLDP.
+    nic->registers.HMAC_CR.MCPAS = 1;
     lan9250_write_mac_csr(nic, 0x01, &nic->registers.HMAC_CR.value);
     
     // enable transmitter 2
@@ -161,6 +168,7 @@ uint16_t global_packet_tag = 0;
 
 void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
     bool anything_done = false;
+    bool peer_mac_ready = (rxnic->peer_mac_set && txnic->peer_mac_set);
     
     lan9250_refresh_status_registers(rxnic);
     lan9250_refresh_status_registers(txnic);
@@ -199,6 +207,8 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
                 }
                 printf("\n\r");*/
                 printf("RSUC,");
+
+                rxnic->decisions.decided = false;
             } else {
                 // buffer not enough and got false, drop packet.
                 lan9250_drop_packet(rxnic, rx_status.LENGTH);
@@ -216,6 +226,23 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
         } else {
             printf("TXOK,");
         }
+    }
+
+    if(!rxnic->decisions.decided && rxnic->bufferSize > 0){
+        // call packet decision, forward it to upper layer
+        network_decide_on_packet(rxnic);
+    }
+
+    if(rxnic->decisions.decided){
+        if(!rxnic->decisions.forward){
+            // drop the packet received, not forwarding.
+            rxnic->bufferSize = 0;
+        }
+    }
+    
+    // if TX nic does not yet know its peer, stop and drop the frame on RX
+    if(!txnic->peer_mac_set){
+        rxnic->bufferSize = 0;
     }
     
     // TODO shutdown host interrupt for non-interrupted transmission
@@ -238,6 +265,10 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
                 .PACKET_LENGTH = rxnic->bufferSize,
                 .PACKET_TAG = (global_packet_tag++),
             };
+            
+            // modify RX nic buffer, for sending...
+            memcpy(rxnic->buffer.bytes, txnic->peer_mac, 6);
+            
             lan9250_write_dword(txnic, ADDR_TX_DATA_FIFO, &txcmd_a.value);
             lan9250_write_dword(txnic, ADDR_TX_DATA_FIFO, &txcmd_b.value);
             lan9250_write_fifo(txnic, rxnic);

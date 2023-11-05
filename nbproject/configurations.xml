@@ -20,6 +20,7 @@
       <itemPath>config_bits.h</itemPath>
       <itemPath>system_config.h</itemPath>
       <itemPath>spi.h</itemPath>
+      <itemPath>lldp.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -40,6 +41,7 @@
       <itemPath>main.c</itemPath>
       <itemPath>uart.c</itemPath>
       <itemPath>spi.c</itemPath>
+      <itemPath>lldp.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
