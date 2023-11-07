@@ -4,6 +4,7 @@
 #include "lan9250_nic_def.h"
 #include "lldp.h"
 #include "network.h"
+#include "lan9250_crc.h"
 
 
 void lldp_on_chassis_id(LAN9250Resource *nic, LLDP_TLV *tlv){
@@ -22,10 +23,6 @@ void lldp_on_chassis_id(LAN9250Resource *nic, LLDP_TLV *tlv){
         );
     }
 }
-
-
-
-
 
 
 bool lldp_parse_ethernet_buffer(LAN9250Resource *nic){
@@ -102,4 +99,51 @@ bool lldp_parse_ethernet_buffer(LAN9250Resource *nic){
     }
 
     return true;
+}
+
+
+// LLDP broadcaster
+
+uint8_t lldp_broadcast_buffer[2][50];
+uint8_t lldp_broadcast_buffer_size[2];
+
+uint8_t* lldp_get_broadcast_buffer(LAN9250Resource *nic){
+    uint8_t* ret = lldp_broadcast_buffer[nic->id];
+    if(lldp_broadcast_buffer_size[nic->id]){
+        return ret;
+    }
+    
+    // generates the MAC broadcasting buffer
+    
+    memcpy(ret, (uint8_t[]){0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e}, 6); // dest
+    memcpy(ret+6, nic->local_mac, 6);   // source
+    ret[13] = 0x88;
+    ret[14] = 0xCC;
+    
+    ret[15] = 0x02; ret[16] = 0x07;
+    ret[17] = 0x04;
+    memcpy(ret+17, nic->local_mac, 6);
+    
+    ret[23] = 0x04; ret[24] = 0x07;
+    ret[25] = 0x03;
+    memcpy(ret+25, nic->local_mac, 6);
+    
+    memcpy(ret+31, (uint8_t[]){0x06, 0x02, 0x0e, 0x11}, 4); // TTL
+    memcpy(ret+35, (uint8_t[]){0x00, 0x00}, 2); // END
+    
+    uint32_t crc32 = lan9250_crc32(ret+14, 38-14);
+    ret[38] = (crc32 >> 24) & 0xFF;
+    ret[39] = (crc32 >> 16) & 0xFF;
+    ret[40] = (crc32 >> 8) & 0xFF;
+    ret[41] = crc32 & 0xFF;
+    
+    lldp_broadcast_buffer_size[nic->id] = 42;
+    return ret;
+}
+
+uint8_t lldp_get_broadcast_buffer_size(LAN9250Resource* nic){
+    if(0 == lldp_broadcast_buffer_size[nic->id]){
+        lldp_get_broadcast_buffer(nic);
+    }
+    return lldp_broadcast_buffer_size[nic->id];
 }

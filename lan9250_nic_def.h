@@ -48,6 +48,7 @@ typedef struct {
     uint8_t id;
     LAN9250EthernetPacket buffer;
     uint16_t bufferSize;
+    uint8_t local_mac[6];
     uint8_t peer_mac[6];
     bool peer_mac_set;
     struct LAN9250EthernetPacketDecisions decisions;

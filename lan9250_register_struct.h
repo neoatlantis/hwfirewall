@@ -328,6 +328,19 @@ typedef union {
 // We here define dwords that are retrieved out of FIFO, which do not belong
 // to any registers.
 
+// 11.8 TX CHECKSUM PREAMBLE
+
+typedef union {
+    uint32_t value;
+    struct {
+        unsigned TXCSSP:12;
+        unsigned :4;
+        unsigned TXCSLOC:12;
+        unsigned :3;
+        unsigned TXCSUDP:1;
+    };
+} DWORD_TX_CHECKSUM_PREAMBLE;
+
 // 11.11.2.1 TX COMMAND 'A'
 
 typedef union {

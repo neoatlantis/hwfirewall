@@ -18,7 +18,7 @@
 
 LAN9250Resource lan9250_resources[2] = {
     {
-        .id = 1,
+        .id = 0,
         .buffer = {0},
         .peer_mac_set = false,
         .peer_mac = {0},
@@ -30,7 +30,7 @@ LAN9250Resource lan9250_resources[2] = {
         .clear_interrupt = lan9250_clear_interrupt_1
     },
     {
-        .id = 2,
+        .id = 1,
         .buffer = {0},
         .peer_mac_set = false,
         .peer_mac = {0},
@@ -113,14 +113,22 @@ void lan9250_init_nic(char slot, LAN9250Config config){
     
     lan9250_read_mac_csr(nic, 0x02, &nic->registers.HMAC_ADDR_H.value);
     lan9250_read_mac_csr(nic, 0x03, &nic->registers.HMAC_ADDR_L.value);
+    
+    nic->local_mac[0] = nic->registers.HMAC_ADDR_H.ADDR5;
+    nic->local_mac[1] = nic->registers.HMAC_ADDR_H.ADDR4;
+    nic->local_mac[2] = nic->registers.HMAC_ADDR_L.ADDR3;
+    nic->local_mac[3] = nic->registers.HMAC_ADDR_L.ADDR2;
+    nic->local_mac[4] = nic->registers.HMAC_ADDR_L.ADDR1;
+    nic->local_mac[5] = nic->registers.HMAC_ADDR_L.ADDR0;
+    
     printf(
         "Device MAC addr is %x:%x:%x:%x:%x:%x\n\r",
-        nic->registers.HMAC_ADDR_H.ADDR5,
-        nic->registers.HMAC_ADDR_H.ADDR4,
-        nic->registers.HMAC_ADDR_L.ADDR3,
-        nic->registers.HMAC_ADDR_L.ADDR2,
-        nic->registers.HMAC_ADDR_L.ADDR1,
-        nic->registers.HMAC_ADDR_L.ADDR0
+        nic->local_mac[0],
+        nic->local_mac[1],
+        nic->local_mac[2],
+        nic->local_mac[3],
+        nic->local_mac[4],
+        nic->local_mac[5]
     );
     
     // configure NIC external interrupt pin and enable interrupt on nic
@@ -155,6 +163,9 @@ void lan9250_init_nic(char slot, LAN9250Config config){
     nic->registers.TX_CFG.TX_ON = 1;
     nic->registers.TX_CFG.TXSAO = 1; // allow tx status fifo overrun
     lan9250_write_sysreg(TX_CFG);
+    
+    // LLDP hooks
+    lldp_get_broadcast_buffer(nic);
     
     // enable host controller interrupt
     nic->enable_interrupt();

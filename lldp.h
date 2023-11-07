@@ -42,8 +42,9 @@ typedef struct {
     bool              skipResult;
 } LLDP_PARSER_STATE_MACHINE;
 
-
 bool lldp_parse_ethernet_buffer(LAN9250Resource *nic);
+uint8_t lldp_get_broadcast_buffer_size(LAN9250Resource* nic);
+uint8_t* lldp_get_broadcast_buffer(LAN9250Resource *nic);
 
 #define LLDP_TYPE_CHASSIS_ID 1
 #define LLDP_TYPE_PORT_ID    2
