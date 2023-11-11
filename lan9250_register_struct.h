@@ -384,12 +384,15 @@ typedef union {
         unsigned EXCESSIVE_DEFERRAL:1;
         unsigned COLLISION_COUNT:4;
         unsigned :1;
+        
         unsigned EXCESSIVE_COLLISIONS:1;
         unsigned LATE_COLLISION:1;
         unsigned NO_CARRIER:1;
         unsigned LOSS_OF_CARRIER:1;
+        
         unsigned :3;
         unsigned ERROR_STATUS:1;
+        
         unsigned PACKET_TAG:16;
     };
 } DWORD_TX_STATUS;

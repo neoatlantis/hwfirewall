@@ -149,14 +149,24 @@ void lan9250_init_nic(char slot, LAN9250Config config){
     nic->registers.INT_EN.TXSO_EN = 1;
     lan9250_write_sysreg(INT_EN);
     
+    // set to full duplex mode
+    //nic->registers.HMAC_CR.FDPX = 1;
+    //lan9250_write_mac_csr(nic, 0x01, &nic->registers.HMAC_CR.value);
+    lan9250_read_mac_csr(nic, 0x01, &nic->registers.HMAC_CR.value);
+    
+    printf("Full duplex mode set to be: %d\n\r", nic->registers.HMAC_CR.FDPX);
+    
     // enable rx and tx
     nic->registers.HMAC_CR.RXEN = 1;
     nic->registers.HMAC_CR.TXEN = 1;
-    // full-duplex mode
-    nic->registers.HMAC_CR.FDPX = 1;
     // enable reception of multicasts, useful for LLDP.
     nic->registers.HMAC_CR.MCPAS = 1;
+    // enable promiscous mode
+    nic->registers.HMAC_CR.PRMS = 1;
+    // receive all
+    //nic->registers.HMAC_CR.RXALL = 1;
     lan9250_write_mac_csr(nic, 0x01, &nic->registers.HMAC_CR.value);
+    lan9250_read_mac_csr(nic, 0x01, &nic->registers.HMAC_CR.value);
     
     // enable transmitter 2
     lan9250_read_sysreg(TX_CFG);
@@ -165,7 +175,7 @@ void lan9250_init_nic(char slot, LAN9250Config config){
     lan9250_write_sysreg(TX_CFG);
     
     // LLDP hooks
-    lldp_get_broadcast_buffer(nic);
+    //lldp_get_broadcast_buffer(nic);
     
     // enable host controller interrupt
     nic->enable_interrupt();
@@ -179,7 +189,7 @@ uint16_t global_packet_tag = 0;
 
 void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
     bool anything_done = false;
-    bool peer_mac_ready = (rxnic->peer_mac_set && txnic->peer_mac_set);
+    //bool peer_mac_ready = (rxnic->peer_mac_set && txnic->peer_mac_set);
     
     lan9250_refresh_status_registers(rxnic);
     lan9250_refresh_status_registers(txnic);
@@ -206,7 +216,7 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
         if(rx_status.value & rx_status_error_mask.value != 0){
             // RX error detected, drop packet
             lan9250_drop_packet(rxnic, rx_status.LENGTH);
-            printf("RDP1,");
+            //printf("RDP1,");
         } else {
             if(rx_status.LENGTH > rx_info_data_used){
                 // strange?
@@ -217,13 +227,13 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
                     printf("%2x ", rxnic->buffer[i]);
                 }
                 printf("\n\r");*/
-                printf("RSUC,");
+                //printf("RSUC,");
 
                 rxnic->decisions.decided = false;
             } else {
                 // buffer not enough and got false, drop packet.
                 lan9250_drop_packet(rxnic, rx_status.LENGTH);
-                printf("RSK1,");
+                //printf("RSK1,");
             }
         }
     }
@@ -233,13 +243,14 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
         
         DWORD_TX_STATUS tx_status = lan9250_tx_status_fifo_pop(txnic);
         if(tx_status.ERROR_STATUS){
-            printf("TXE=%hx,", tx_status.value);
+            //printf("TXE=,");
+            //printf("%x", (uint16_t)(tx_status.value & 0xFFFF));
         } else {
-            printf("TXOK,");
+            //printf("TXOK,");
         }
     }
 
-    if(!rxnic->decisions.decided && rxnic->bufferSize > 0){
+    /*if(!rxnic->decisions.decided && rxnic->bufferSize > 0){
         // call packet decision, forward it to upper layer
         network_decide_on_packet(rxnic);
     }
@@ -249,14 +260,17 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
             // drop the packet received, not forwarding.
             rxnic->bufferSize = 0;
         }
-    }
+    }*/
     
     // if TX nic does not yet know its peer, stop and drop the frame on RX
-    if(!txnic->peer_mac_set){
+    /*if(!txnic->peer_mac_set){
         rxnic->bufferSize = 0;
-    }
+    }*/
     
-    // TODO shutdown host interrupt for non-interrupted transmission
+    // shutdown host interrupt for non-interrupted transmission
+    
+    rxnic->disable_interrupt();
+    txnic->disable_interrupt();
     
     if(rxnic->bufferSize > 0){ // if we have anything to send
         anything_done = true;
@@ -278,13 +292,13 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
             };
             
             // modify RX nic buffer, for sending...
-            memcpy(rxnic->buffer.bytes, txnic->peer_mac, 6);
+            //memcpy(rxnic->buffer.bytes, txnic->peer_mac, 6);
             
             lan9250_write_dword(txnic, ADDR_TX_DATA_FIFO, &txcmd_a.value);
             lan9250_write_dword(txnic, ADDR_TX_DATA_FIFO, &txcmd_b.value);
             lan9250_write_fifo(txnic, rxnic);
             
-            printf("TXD,");
+            //printf("TXD,");
             
             if(rxnic->bufferSize >= 14){
                 printf("%x%x", rxnic->buffer.bytes[12], rxnic->buffer.bytes[13]);
@@ -293,15 +307,24 @@ void lan9250_job_for_nic(LAN9250Resource *rxnic, LAN9250Resource *txnic){
             rxnic->bufferSize = 0;
         } else {
             // tx nic buffer full, cannot send
-            printf("NOTX,");
+            //printf("NOTX,");
             // dump txd and txs fifo
             lan9250_tx_dump(txnic);
         }
     }
     
+    rxnic->enable_interrupt();
+    txnic->enable_interrupt();
+    
     
     if(anything_done){
-        printf("/%d%d\n\r", rxnic->id, txnic->id);
+        printf(
+                "/%u,%u,%u,%u,%d%d\n\r",
+                rx_info_status_used,
+                rx_info_data_used,
+                tx_info_status_used,
+                tx_info_data_free,
+                rxnic->id, txnic->id);
     }
     
 //    lan9250_read_sysreg(RX_FIFO_INF);
