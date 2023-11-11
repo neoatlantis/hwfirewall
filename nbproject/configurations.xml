@@ -17,6 +17,13 @@
       <logicalFolder name="f2" displayName="network" projectFiles="true">
         <itemPath>network.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f3" displayName="nic" projectFiles="true">
+        <itemPath>nic/nic.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="w5500" projectFiles="true">
+        <itemPath>w5500/new.h</itemPath>
+        <itemPath>w5500/registers.h</itemPath>
+      </logicalFolder>
       <itemPath>uart.h</itemPath>
       <itemPath>config_bits.h</itemPath>
       <itemPath>system_config.h</itemPath>
