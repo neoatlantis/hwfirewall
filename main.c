@@ -85,9 +85,23 @@ void main(void) {
     
     while(1){
         WDTCONbits.WDTCLR = 1;
-        NICUDPPacket udpp = w5500_socket_read(&nic[0], 0);
+        NICUDPPacket udpp = w5500_udp_socket_read(&nic[0], 0);
         if(udpp.bufferSize > 0){
-            printf("Read %d bytes.\n\r", udpp.bufferSize);
+            printf(
+                "Read %d bytes from %d.%d.%d.%d:%d\n\r", udpp.bufferSize,
+                    udpp.src_addr.octet0,
+                    udpp.src_addr.octet1,
+                    udpp.src_addr.octet2,
+                    udpp.src_addr.octet3,
+                    (udpp.src_port.octetH << 8 | udpp.src_port.octetL)
+            );
+            
+            // modify udpp for reply, test purpose.
+            memcpy(udpp.dst_addr.octet, udpp.src_addr.octet, 4);
+            memcpy(udpp.dst_port.octet, udpp.src_port.octet, 2);
+            w5500_udp_socket_send(nic, 0, &udpp);
+            
+            udpp.bufferSize = 0;
         }
     }
     

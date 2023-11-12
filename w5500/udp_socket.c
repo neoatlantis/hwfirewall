@@ -59,7 +59,7 @@ void w5500_open_udp_socket(NIC* nic, uint8_t socket_n, uint16_t port){
 }
 
 
-NICUDPPacket w5500_socket_read(NIC* nic, uint8_t socket_n){
+NICUDPPacket w5500_udp_socket_read(NIC* nic, uint8_t socket_n){
     NICUDPPacket ret = { .bufferSize = 0 };
     
     uint16_t bytes_read = 0;
@@ -141,4 +141,63 @@ NICUDPPacket w5500_socket_read(NIC* nic, uint8_t socket_n){
     w5500_send_socket_command(nic, socket_n, W5500_SOCK_CMD_RECV);
     
     return ret;
+}
+
+bool w5500_udp_socket_send(NIC* nic, uint8_t socket_n, NICUDPPacket* udpp){
+    REG_SOCKET_TX_FSR FSR;
+    w5500_spi_exchange_buffer(
+        nic, FSR.value,
+        W5500_CTRL_BYTE_RD_SOCKET_REG(socket_n),
+        ADDR_SOCKET_TX_FSR
+    );
+    uint16_t txbuf_free = (FSR.H << 8) | FSR.L; // free bytes in TX buffer
+    
+    if(txbuf_free < udpp->bufferSize) return false;
+    
+    REG_SOCKET_DIPR DIPR;
+    REG_SOCKET_DPORT DPORT;
+    
+    memcpy(DIPR.octet, udpp->dst_addr.octet, 4);
+    memcpy(DPORT.octet, udpp->dst_port.octet, 2);
+    w5500_spi_exchange_buffer(
+        nic, DIPR.octet,
+        W5500_CTRL_BYTE_WR_SOCKET_REG(socket_n),
+        ADDR_SOCKET_DIPR
+    );
+    w5500_spi_exchange_buffer(
+        nic, DPORT.octet,
+        W5500_CTRL_BYTE_WR_SOCKET_REG(socket_n),
+        ADDR_SOCKET_DPORT
+    );
+
+    // Preserve send WR pointer
+    REG_SOCKET_TX_WR TX_WR;
+    w5500_spi_exchange_buffer(
+        nic, TX_WR.value,
+        W5500_CTRL_BYTE_RD_SOCKET_REG(socket_n),
+        ADDR_SOCKET_TX_WR
+    );
+    uint16_t txbuf_offset = (TX_WR.H << 8) | (TX_WR.L);
+
+    // Fill send buffer
+    
+    w5500_spi_exchange_buffer(
+        nic, udpp->buffer,
+        W5500_CTRL_BYTE_WR_SOCKET_TX(socket_n),
+        txbuf_offset, udpp->bufferSize
+    );
+    
+    // update TX_WR
+    txbuf_offset += udpp->bufferSize;
+    TX_WR.H = txbuf_offset >> 8;
+    TX_WR.L = txbuf_offset & 0xFF;
+    w5500_spi_exchange_buffer(
+        nic, TX_WR.value,
+        W5500_CTRL_BYTE_WR_SOCKET_REG(socket_n),
+        ADDR_SOCKET_TX_WR
+    );
+    
+    // command send
+    w5500_send_socket_command(nic, socket_n, W5500_SOCK_CMD_SEND);
+    return true;
 }
