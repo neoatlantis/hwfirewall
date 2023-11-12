@@ -4,31 +4,19 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <logicalFolder name="f1" displayName="lan9250" projectFiles="true">
-        <itemPath>lan9250.h</itemPath>
-        <itemPath>lan9250_register_struct.h</itemPath>
-        <itemPath>lan9250_io.h</itemPath>
-        <itemPath>lan9250_hw_def.h</itemPath>
-        <itemPath>lan9250_op.h</itemPath>
-        <itemPath>lan9250_nic_def.h</itemPath>
-        <itemPath>lan9250_config.h</itemPath>
-        <itemPath>lan9250_crc.h</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f2" displayName="network" projectFiles="true">
-        <itemPath>network.h</itemPath>
-      </logicalFolder>
       <logicalFolder name="f3" displayName="nic" projectFiles="true">
         <itemPath>nic/nic.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="w5500" projectFiles="true">
         <itemPath>w5500/new.h</itemPath>
         <itemPath>w5500/registers.h</itemPath>
+        <itemPath>w5500/config.h</itemPath>
+        <itemPath>w5500/spi.h</itemPath>
       </logicalFolder>
       <itemPath>uart.h</itemPath>
       <itemPath>config_bits.h</itemPath>
       <itemPath>system_config.h</itemPath>
       <itemPath>spi.h</itemPath>
-      <itemPath>lldp.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -37,20 +25,13 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <logicalFolder name="f1" displayName="lan9250" projectFiles="true">
-        <itemPath>lan9250.c</itemPath>
-        <itemPath>lan9250_io.c</itemPath>
-        <itemPath>lan9250_hw_def.c</itemPath>
-        <itemPath>lan9250_op.c</itemPath>
-        <itemPath>lan9250_crc.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f2" displayName="network" projectFiles="true">
-        <itemPath>network.c</itemPath>
+      <logicalFolder name="f3" displayName="w5500" projectFiles="true">
+        <itemPath>w5500/new.c</itemPath>
+        <itemPath>w5500/spi.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>uart.c</itemPath>
       <itemPath>spi.c</itemPath>
-      <itemPath>lldp.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -3,13 +3,7 @@
 
 #include "../nic/nic.h"
 
-void w5500_init(NIC* nic){
-    
-}
 
-
-void w5500_new(NIC* nic){
-    nic->init = w5500_init;
-}
+void w5500_new(NIC* nic);
 
 #endif

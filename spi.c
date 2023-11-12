@@ -69,3 +69,11 @@ uint32_t spi2_receive_and_send_new(uint32_t c, bool invert_recv_endian){
     while(!SPI2STATbits.SPITBE);
     return buf;
 }
+
+void spi2_exchange_buffer(uint8_t* buf, uint16_t bufferSize){
+    for(uint16_t i=0; i<bufferSize; i++){
+        SPI2BUF = buf[i];
+        while(!SPI2STATbits.SPIRBF);
+        buf[i] = SPI2BUF;
+    }
+}

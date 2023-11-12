@@ -1,9 +1,12 @@
 #ifndef _NIC_H    /* Guard against multiple inclusion */
 #define _NIC_H
 
+#include <stdint.h>
 
 typedef struct {
+    void (*spi_select)(void);
     void (*spi_exchange_register)(uint8_t *buf, uint16_t bufferSize);
+    void (*spi_deselect)(void);
     void (*irq_enable)(void);
     void (*irq_disable)(void);
     void (*hw_reset)(void);
@@ -31,18 +34,28 @@ typedef union {
     };
 } NICIPv4Address;
 
-typedef struct {
+typedef union {
+    uint8_t octet[2];
+    struct {
+        uint8_t octetH;
+        uint8_t octetL;
+    };
+} NICPort;
+
+typedef struct NIC {
     uint8_t id;
     NICBasicHAL driver;
     
     NICMACAddress mac;
-    NICIPv4Address ip;
-    NICIPv4Address netmask;
     
-    void (*init)(NIC*);
+    NICIPv4Address ip_gateway;
+    NICIPv4Address ip_device;
+    NICIPv4Address ip_netmask;
+    
+    void (*init)(struct NIC*);
 } NIC;
 
 
 
 
-#endif /* _EXAMPLE_FILE_NAME_H */
+#endif

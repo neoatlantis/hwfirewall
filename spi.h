@@ -51,6 +51,7 @@
 void spi2_enable();
 uint32_t spi2_send_and_receive_new(uint32_t, bool, bool);
 uint32_t spi2_receive_and_send_new(uint32_t c, bool);
+void spi2_exchange_buffer(uint8_t*, uint16_t);
 
 void spi2_set_mode_8();
 void spi2_set_mode_16();
