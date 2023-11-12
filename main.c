@@ -52,10 +52,24 @@ void forward_packet(NIC* nicfrom, NIC* nicto, NICUDPPacket* udpp, bool outgoing)
         return;
     }
     if(udpp->bufferSize){
-        if(!w5500_udp_socket_send(nicto, 0, &udpp)) return;
+        printf(
+            "Forwarding %dB from %d.%d.%d.%d:%d...", udpp->bufferSize,
+                udpp->src_addr.octet0,
+                udpp->src_addr.octet1,
+                udpp->src_addr.octet2,
+                udpp->src_addr.octet3,
+                (udpp->src_port.octetH << 8 | udpp->src_port.octetL)
+        );
+        
+        if(!w5500_udp_socket_send(nicto, 0, udpp)){
+            printf("Failed.\n\r");
+            return;
+        }
+        printf("OK.\n\r");
+        udpp->bufferSize = 0;
     }
     
-    w5500_udp_socket_recv(nicfrom, 0, &udpp);
+    w5500_udp_socket_recv(nicfrom, 0, udpp);
 }
 
 void main(void) {
@@ -87,8 +101,8 @@ void main(void) {
     printf("Initialize W5500 at slot 1...\n\r");
     nic[0].init(&nic[0]);
     
-    printf("Opening UDP port 51820 at slot 0...\n\r");
-    w5500_open_udp_socket(&nic[0], 0, 51820);
+    printf("Opening UDP port at slot 0...\n\r");
+    w5500_open_udp_socket(&nic[0], 0, SLOT1_LOCAL_PORT);
     
     printf("Initialize W5500 at slot 2...\n\r");
     nic[1].init(&nic[1]);
@@ -103,9 +117,17 @@ void main(void) {
     
     __builtin_enable_interrupts();
     
+    NICUDPPacket udp_outgoing = { .bufferSize = 0 };
+    NICUDPPacket udp_incoming = { .bufferSize = 0 };
+    
     
     while(1){
         WDTCONbits.WDTCLR = 1;
+        
+        forward_packet(&nic[0], &nic[1], &udp_outgoing, true);
+        forward_packet(&nic[1], &nic[0], &udp_incoming, false);
+        
+        /*
         NICUDPPacket udpp = w5500_udp_socket_read(&nic[0], 0);
         if(udpp.bufferSize > 0){
             printf(
@@ -123,7 +145,7 @@ void main(void) {
             w5500_udp_socket_send(nic, 0, &udpp);
             
             udpp.bufferSize = 0;
-        }
+        }*/
     }
     
     return;

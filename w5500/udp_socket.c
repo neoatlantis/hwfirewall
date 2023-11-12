@@ -100,7 +100,7 @@ bool w5500_udp_socket_recv(NIC* nic, uint8_t socket_n, NICUDPPacket *ret){
         memcpy(ret->dst_addr.octet, nic->ip_device.octet, 4);
         //memcpy(ret.dst_port.octet, nic->ip) // TODO
         ret->bufferSize = bytes_read - 8;
-        memcpy(ret.buffer, W5500_COMMON_BUFFER+8, ret.bufferSize);
+        memcpy(ret->buffer, W5500_COMMON_BUFFER+8, ret->bufferSize);
         
         
         if(udp_length != ret->bufferSize){
