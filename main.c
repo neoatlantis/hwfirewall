@@ -17,6 +17,7 @@
 #include "w5500/new.h"
 #include "w5500/udp_socket.h"
 #include "system_config.h"
+#include "customized_params.h"
 
 NIC nic[2];
 
@@ -36,6 +37,26 @@ void w5500_nics_deselect(){
     SPI_SLOT1_CS_BIT = SPI_SLOT2_CS_BIT = 1;
 }
 
+void forward_packet(NIC* nicfrom, NIC* nicto, NICUDPPacket* udpp, bool outgoing){
+    
+    bool pass = true;
+    
+    if(outgoing){
+        memcpy(udpp->dst_addr.octet, IPdest.octet, 4);
+    } else {
+        memcpy(udpp->dst_addr.octet, IPsrc.octet, 4);
+    }
+    
+    if(!pass){
+        udpp->bufferSize = 0;
+        return;
+    }
+    if(udpp->bufferSize){
+        if(!w5500_udp_socket_send(nicto, 0, &udpp)) return;
+    }
+    
+    w5500_udp_socket_recv(nicfrom, 0, &udpp);
+}
 
 void main(void) {
     spi2_enable();
@@ -45,7 +66,7 @@ void main(void) {
     
     nic[0].id = 0;
     memcpy(&nic[0].mac.octet,       &(uint8_t[6]){ 0x02, 0xDE, 0xAD, 0xBE, 0xEF, 0x00 }, 6);
-    memcpy(&nic[0].ip_device.octet, &(uint8_t[4]){ 192, 168, 144, 1 }, 4);
+    memcpy(&nic[0].ip_device.octet, &(uint8_t[4]){ SLOT1_LOCAL_IP }, 4);
     memcpy(&nic[0].ip_netmask.octet,&(uint8_t[4]){ 255, 255, 255, 0 }, 4);
     nic[0].driver.spi_select = w5500_nic0_select;
     nic[0].driver.spi_deselect = w5500_nics_deselect;
@@ -53,7 +74,8 @@ void main(void) {
     
     nic[1].id = 1;
     memcpy(&nic[1].mac.octet,       &(uint8_t[6]){ 0x02, 0xDE, 0xAD, 0xBE, 0xEF, 0x01 }, 6);
-    memcpy(&nic[1].ip_device.octet, &(uint8_t[4]){ 192, 168, 144, 2 }, 4);
+    memcpy(&nic[1].ip_device.octet, &(uint8_t[4]){ SLOT2_LOCAL_IP }, 4);
+    memcpy(&nic[1].ip_gateway.octet,&(uint8_t[4]){ SLOT2_GATEWAY_IP }, 4);
     memcpy(&nic[1].ip_netmask.octet,&(uint8_t[4]){ 255, 255, 255, 0 }, 4);
     nic[1].driver.spi_select = w5500_nic1_select;
     nic[1].driver.spi_deselect = w5500_nics_deselect;
@@ -81,7 +103,6 @@ void main(void) {
     
     __builtin_enable_interrupts();
     
-    uint8_t buffer[2048];
     
     while(1){
         WDTCONbits.WDTCLR = 1;

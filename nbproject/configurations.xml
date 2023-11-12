@@ -18,6 +18,7 @@
       <itemPath>config_bits.h</itemPath>
       <itemPath>system_config.h</itemPath>
       <itemPath>spi.h</itemPath>
+      <itemPath>customized_params.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

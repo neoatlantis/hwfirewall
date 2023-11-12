@@ -3,6 +3,7 @@ debug
 dist
 *log*
 .generated*
+customized*.h
 nbactions.xml
 nb-configuration.xml
 nbproject/private/

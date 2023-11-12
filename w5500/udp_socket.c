@@ -59,8 +59,8 @@ void w5500_open_udp_socket(NIC* nic, uint8_t socket_n, uint16_t port){
 }
 
 
-NICUDPPacket w5500_udp_socket_read(NIC* nic, uint8_t socket_n){
-    NICUDPPacket ret = { .bufferSize = 0 };
+bool w5500_udp_socket_recv(NIC* nic, uint8_t socket_n, NICUDPPacket *ret){
+    ret->bufferSize = 0;
     
     uint16_t bytes_read = 0;
     REG_SOCKET_RX_RSR RSR;
@@ -95,16 +95,16 @@ NICUDPPacket w5500_udp_socket_read(NIC* nic, uint8_t socket_n){
         );
         
         uint16_t udp_length = (W5500_COMMON_BUFFER[6]) << 8 | W5500_COMMON_BUFFER[7];
-        memcpy(ret.src_addr.octet, W5500_COMMON_BUFFER, 4);
-        memcpy(ret.src_port.octet, W5500_COMMON_BUFFER+4, 2);
-        memcpy(ret.dst_addr.octet, nic->ip_device.octet, 4);
+        memcpy(ret->src_addr.octet, W5500_COMMON_BUFFER, 4);
+        memcpy(ret->src_port.octet, W5500_COMMON_BUFFER+4, 2);
+        memcpy(ret->dst_addr.octet, nic->ip_device.octet, 4);
         //memcpy(ret.dst_port.octet, nic->ip) // TODO
-        ret.bufferSize = bytes_read - 8;
+        ret->bufferSize = bytes_read - 8;
         memcpy(ret.buffer, W5500_COMMON_BUFFER+8, ret.bufferSize);
         
         
-        if(udp_length != ret.bufferSize){
-            ret.bufferSize = 0; // error! // TODO
+        if(udp_length != ret->bufferSize){
+            ret->bufferSize = 0; // error! // TODO
         }
         
         
@@ -140,7 +140,7 @@ NICUDPPacket w5500_udp_socket_read(NIC* nic, uint8_t socket_n){
     // sets out another RECV command
     w5500_send_socket_command(nic, socket_n, W5500_SOCK_CMD_RECV);
     
-    return ret;
+    return true;
 }
 
 bool w5500_udp_socket_send(NIC* nic, uint8_t socket_n, NICUDPPacket* udpp){
