@@ -15,6 +15,7 @@
 #include "spi.h"
 #include "nic/nic.h"
 #include "w5500/new.h"
+#include "w5500/udp_socket.h"
 #include "system_config.h"
 
 NIC nic[2];
@@ -64,16 +65,30 @@ void main(void) {
     printf("Initialize W5500 at slot 1...\n\r");
     nic[0].init(&nic[0]);
     
+    printf("Opening UDP port 51820 at slot 0...\n\r");
+    w5500_open_udp_socket(&nic[0], 0, 51820);
+    
     printf("Initialize W5500 at slot 2...\n\r");
     nic[1].init(&nic[1]);
     
+    printf("Opening UDP port 9999 at slot 1...\n\r");
+    
+    w5500_open_udp_socket(&nic[1], 0, 9999);
+    
+    printf("Init done.\n\r");
     
     INTCONSET = _INTCON_MVEC_MASK;
     
     __builtin_enable_interrupts();
     
+    uint8_t buffer[2048];
+    
     while(1){
         WDTCONbits.WDTCLR = 1;
+        NICUDPPacket udpp = w5500_socket_read(&nic[0], 0);
+        if(udpp.bufferSize > 0){
+            printf("Read %d bytes.\n\r", udpp.bufferSize);
+        }
     }
     
     return;

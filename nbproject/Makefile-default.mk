@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=main.c uart.c spi.c w5500/new.c w5500/spi.c
+SOURCEFILES_QUOTED_IF_SPACED=main.c uart.c spi.c w5500/new.c w5500/spi.c w5500/udp_socket.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/main.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/spi.o ${OBJECTDIR}/w5500/new.o ${OBJECTDIR}/w5500/spi.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/main.o.d ${OBJECTDIR}/uart.o.d ${OBJECTDIR}/spi.o.d ${OBJECTDIR}/w5500/new.o.d ${OBJECTDIR}/w5500/spi.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/main.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/spi.o ${OBJECTDIR}/w5500/new.o ${OBJECTDIR}/w5500/spi.o ${OBJECTDIR}/w5500/udp_socket.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/main.o.d ${OBJECTDIR}/uart.o.d ${OBJECTDIR}/spi.o.d ${OBJECTDIR}/w5500/new.o.d ${OBJECTDIR}/w5500/spi.o.d ${OBJECTDIR}/w5500/udp_socket.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/main.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/spi.o ${OBJECTDIR}/w5500/new.o ${OBJECTDIR}/w5500/spi.o
+OBJECTFILES=${OBJECTDIR}/main.o ${OBJECTDIR}/uart.o ${OBJECTDIR}/spi.o ${OBJECTDIR}/w5500/new.o ${OBJECTDIR}/w5500/spi.o ${OBJECTDIR}/w5500/udp_socket.o
 
 # Source Files
-SOURCEFILES=main.c uart.c spi.c w5500/new.c w5500/spi.c
+SOURCEFILES=main.c uart.c spi.c w5500/new.c w5500/spi.c w5500/udp_socket.c
 
 
 
@@ -131,6 +131,12 @@ ${OBJECTDIR}/w5500/spi.o: w5500/spi.c  .generated_files/flags/default/3559283cfe
 	@${RM} ${OBJECTDIR}/w5500/spi.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -MP -MMD -MF "${OBJECTDIR}/w5500/spi.o.d" -o ${OBJECTDIR}/w5500/spi.o w5500/spi.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
+${OBJECTDIR}/w5500/udp_socket.o: w5500/udp_socket.c  .generated_files/flags/default/f66f55b0efb3a60d4bc06cd786c49093be47c851 .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}/w5500" 
+	@${RM} ${OBJECTDIR}/w5500/udp_socket.o.d 
+	@${RM} ${OBJECTDIR}/w5500/udp_socket.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -MP -MMD -MF "${OBJECTDIR}/w5500/udp_socket.o.d" -o ${OBJECTDIR}/w5500/udp_socket.o w5500/udp_socket.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
 else
 ${OBJECTDIR}/main.o: main.c  .generated_files/flags/default/f60d9d87c4ce2de05aa52c6f5af1a5d771cafbfe .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}" 
@@ -161,6 +167,12 @@ ${OBJECTDIR}/w5500/spi.o: w5500/spi.c  .generated_files/flags/default/a44b26c855
 	@${RM} ${OBJECTDIR}/w5500/spi.o.d 
 	@${RM} ${OBJECTDIR}/w5500/spi.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -MP -MMD -MF "${OBJECTDIR}/w5500/spi.o.d" -o ${OBJECTDIR}/w5500/spi.o w5500/spi.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/w5500/udp_socket.o: w5500/udp_socket.c  .generated_files/flags/default/5226179978dd431ca44dca5375ffc9e0153b02b5 .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}/w5500" 
+	@${RM} ${OBJECTDIR}/w5500/udp_socket.o.d 
+	@${RM} ${OBJECTDIR}/w5500/udp_socket.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -MP -MMD -MF "${OBJECTDIR}/w5500/udp_socket.o.d" -o ${OBJECTDIR}/w5500/udp_socket.o w5500/udp_socket.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
 endif
 

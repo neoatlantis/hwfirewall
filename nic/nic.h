@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+#define NIC_UDP_MAX_BUFFER 2048
+
+
+
 typedef struct {
     void (*spi_select)(void);
     void (*spi_exchange_register)(uint8_t *buf, uint16_t bufferSize);
@@ -55,7 +59,14 @@ typedef struct NIC {
     void (*init)(struct NIC*);
 } NIC;
 
-
+typedef struct {
+    NICIPv4Address src_addr;
+    NICPort        src_port;
+    NICIPv4Address dst_addr;
+    NICPort        dst_port;
+    uint8_t        buffer[NIC_UDP_MAX_BUFFER];
+    uint16_t       bufferSize;
+} NICUDPPacket;
 
 
 #endif

@@ -184,8 +184,25 @@ typedef union {
 
 
 
+// commands and status constants
 
+#define W5500_SOCK_CMD_OPEN         0x01
+#define W5500_SOCK_CMD_LISTEN       0x02
+#define W5500_SOCK_CMD_CONNECT      0x04
+#define W5500_SOCK_CMD_DISCON       0x08
+#define W5500_SOCK_CMD_CLOSE        0x10
+#define W5500_SOCK_CMD_SEND         0x20
+#define W5500_SOCK_CMD_SEND_MAC     0x21
+#define W5500_SOCK_CMD_SEND_KEEP    0x22
+#define W5500_SOCK_CMD_RECV         0x40
 
+#define W5500_SOCK_CLOSED           0x00
+#define W5500_SOCK_INIT             0x13
+#define W5500_SOCK_LISTEN           0x14
+#define W5500_SOCK_ESTABLISHED      0x17
+#define W5500_SOCK_CLOSE_WAIT       0x1C
+#define W5500_SOCK_UDP              0x22
+#define W5500_SOCK_MACRAW           0x42
 
 
 
