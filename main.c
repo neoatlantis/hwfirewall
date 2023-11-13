@@ -11,6 +11,7 @@
 #include <string.h>
 #include <xc.h>
 
+#include "coretime.h"
 #include "uart.h"
 #include "spi.h"
 #include "nic/nic.h"
@@ -52,17 +53,24 @@ void forward_packet(NIC* nicfrom, NIC* nicto, NICUDPPacket* udpp, bool outgoing)
         return;
     }
     if(udpp->bufferSize){
+        printf("[%d->%d] ", nicfrom->id, nicto->id);
         printf(
-            "Forwarding %dB from %d.%d.%d.%d:%d...", udpp->bufferSize,
+            "Forwarding %dB from %d.%d.%d.%d:%d to %d.%d.%d.%d:%d...", udpp->bufferSize,
                 udpp->src_addr.octet0,
                 udpp->src_addr.octet1,
                 udpp->src_addr.octet2,
                 udpp->src_addr.octet3,
-                (udpp->src_port.octetH << 8 | udpp->src_port.octetL)
+                (udpp->src_port.octetH << 8 | udpp->src_port.octetL),
+                udpp->dst_addr.octet0,
+                udpp->dst_addr.octet1,
+                udpp->dst_addr.octet2,
+                udpp->dst_addr.octet3,
+                (udpp->dst_port.octetH << 8 | udpp->dst_port.octetL)
         );
         
         if(!w5500_udp_socket_send(nicto, 0, udpp)){
             printf("Failed.\n\r");
+            udpp->bufferSize = 0;
             return;
         }
         printf("OK.\n\r");
@@ -73,9 +81,13 @@ void forward_packet(NIC* nicfrom, NIC* nicto, NICUDPPacket* udpp, bool outgoing)
 }
 
 void main(void) {
+    INTCONSET = _INTCON_MVEC_MASK;
+    coretime_init();
+    __builtin_enable_interrupts();
+    
     spi2_enable();
     uart2_enable();
-    printf("\n\r----\n\r");
+    printf("\033[2J----\n\r");
     printf("NeoAtlantis Hardware Firewall\n\r");
     
     nic[0].id = 0;
@@ -112,10 +124,6 @@ void main(void) {
     w5500_open_udp_socket(&nic[1], 0, 9999);
     
     printf("Init done.\n\r");
-    
-    INTCONSET = _INTCON_MVEC_MASK;
-    
-    __builtin_enable_interrupts();
     
     NICUDPPacket udp_outgoing = { .bufferSize = 0 };
     NICUDPPacket udp_incoming = { .bufferSize = 0 };
